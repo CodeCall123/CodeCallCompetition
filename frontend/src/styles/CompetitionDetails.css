@@ -1,0 +1,558 @@
+.competition-details-wrapper {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 3%; 
+  padding-left: 5%;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between; 
+  gap: 20px; 
+}
+
+.competition-content {
+  width: 70%; 
+}
+
+.competition-header {
+  background: linear-gradient(to right, #ff6445, #ffa400);
+  padding: 20px;
+  border-radius: 15px 15px 0 0; 
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 0; 
+  min-height: 250px; 
+}
+
+.header-icons {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px; 
+}
+
+.header-icons a {
+  color: #ffffff;
+  transition: color 0.3s;
+}
+
+.header-icons a:hover {
+  color: #000;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  margin-left: 140px; 
+}
+
+.title-subtitle {
+  margin-top: 120px; 
+  text-align: left;
+}
+
+.competition-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.competition-subtitle {
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.live-status {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.live-status .blinking-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  animation: blinking 1s infinite;
+}
+
+.live-status .blinking-dot.live {
+  background-color: green;
+}
+
+.live-status .blinking-dot.upcoming {
+  background-color: orange;
+}
+
+.live-status .blinking-dot.judging {
+  background-color: purple;
+}
+
+.live-status .blinking-dot.ended {
+  background-color: grey;
+  animation: none;
+}
+
+.live-status .status {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.countdown {
+  margin-left: 10px;
+}
+
+.competition-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.competition-info-container {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 0 0 15px 15px; 
+  display: flex;
+  justify-content: space-between; 
+  gap: 20px; 
+  margin-bottom: 20px; 
+}
+
+.info-left {
+  width: 50%; 
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative; 
+}
+
+.info-right {
+  width: 50%; 
+  text-align: left;
+}
+
+.info-right h3 {
+  color: #ff6445;
+}
+
+
+
+.usdc-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 5px;
+}
+
+.info-icon {
+  margin-left: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.info-tooltip {
+  position: absolute;
+  background-color: #242122;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  display: none;
+  width: 300px;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  font-size: 0.8rem;
+  z-index: 1000;
+  white-space: normal;
+}
+
+
+.price-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.info-icon:hover + .info-tooltip {
+  display: block;
+}
+
+.price {
+  order: 1; 
+  margin-bottom: 10px; 
+}
+
+.xp {
+  order: 2; 
+  margin-bottom: 10px;
+}
+
+.tags {
+  order: 3; 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: absolute;
+  bottom: 0; 
+}
+
+.tag {
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.tag.javascript {
+  background-color: #f0db4f;
+  color: #000;
+}
+
+.tag.python {
+  background-color: #4b8bbe;
+  color: #fff;
+}
+
+.tag.java {
+  background-color: #f89820;
+  color: #fff;
+}
+
+.tag.security {
+  background-color: #e34c26;
+  color: #fff;
+}
+
+.tag.algorithms {
+  background-color: #8338ec;
+  color: #fff;
+}
+
+.tag.trading {
+  background-color: #ff006e;
+  color: #fff;
+}
+
+.tag.optimization {
+  background-color: #ffbe0b;
+  color: #000;
+}
+
+.competition-main-content {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  background-color: #444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tabs button.active {
+  background-color: #ff6445;
+}
+
+.tabs button:hover:not(.active) {
+  background-color: #3a3a3a;
+}
+
+.tab-content {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.tab-content h2 {
+  color: #ff6445;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.tab-content p {
+  margin-bottom: 10px;
+  text-align: left;
+
+}
+
+.submissions-container {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.submissions-container h2 {
+  color: #ff6445;
+  margin-bottom: 10px;
+}
+
+.login-prompt {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.login-prompt:hover {
+  background-color: #3a3a3a;
+}
+
+.submission-area {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.submit-code-button {
+  display: inline-block;
+  background-color: #ff6445;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  margin-bottom: 20px; 
+}
+
+.submit-code-button:hover {
+  background-color: #ffa400;
+}
+
+
+.pr-container {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #2b2b2b;
+  border-radius: 8px;
+}
+
+.pr-container button {
+  background-color: #444;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pr-container button:hover {
+  background-color: #555;
+}
+
+.chevron-icon {
+  margin-left: auto; 
+}
+
+
+.diff-code-delete {
+  color: #ff6a6a;
+  background-color: #2e1e1e;
+}
+
+.diff-gutter-delete {
+  background-color: #2e1e1e;
+}
+
+.diff-code-insert {
+  color: #66ff66;
+  background-color: #1e2e1e;
+}
+
+.diff-gutter-insert {
+  background-color: #1e2e1e;
+}
+
+.pr-container p {
+  color: #ffffff;
+  margin-top: 5px;
+}
+
+.competition-side-container {
+  width: 25%; 
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reward-card {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+}
+
+.reward-card h3 {
+  color: #ff6445;
+  margin-bottom: 10px;
+  font-size: 20px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.reward-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reward-item {
+  flex-basis: 45%;
+  display: flex;
+  justify-content: space-between;
+
+}
+.reward-item.container {
+  border: 2px solid #ffa400; 
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reward-item.feature {
+}
+
+.reward-item.optimization {
+  background-: #ffbe0b;
+}
+
+.reward-item.bugs {
+}
+
+.reward-item.judging {
+}
+.reward-tag {
+  color: white;
+  padding: 2.5px 5px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.reward-tag.feature {
+  font-weight: bold;
+}
+
+.reward-tag.optimization {
+  font-weight: bold;
+
+}
+
+.reward-tag.bug {
+  font-weight: bold;
+
+}
+
+.reward-tag.judging {
+  font-weight: bold;
+
+}
+
+
+.judges-card {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.judges-card h3 {
+  color: #ff6445;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: left;
+  display: inline; 
+  margin-right: 10px; 
+}
+
+.judges-card p {
+  display: inline; 
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.judges-card a {
+  color: #ffa400; 
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.judges-card a:hover {
+  color: #ff6445; 
+}
+
+.judges-section {
+  margin-bottom: 10px;
+}
+
+.styled-button {
+  display: inline-block;
+  background-color: #ff6445;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  cursor: pointer;
+  align-self: center; 
+}
+
+.styled-button:hover {
+  background-color: #ffa400;
+}
+
+.pr-label {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+
+@keyframes blinking {
+  0% {
+      opacity: 1;
+  }
+  50% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+  }
+}

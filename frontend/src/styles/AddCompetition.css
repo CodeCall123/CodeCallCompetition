@@ -1,0 +1,77 @@
+/* src/styles/AddCompetition.css */
+
+.add-competition {
+    min-height: 100vh;
+  }
+  
+  .container {
+    padding: 20px;
+    text-align: left;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #ff6445, #ffa400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .competition-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .competition-form input,
+  .competition-form textarea {
+    padding: 10px;
+    background-color: #242122;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+  }
+  
+  .competition-form input::placeholder,
+  .competition-form textarea::placeholder {
+    color: #888;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    color: white;
+  }
+  
+  .checkbox-group input {
+    margin-right: 10px;
+    accent-color: #ff6445;
+  }
+  
+  .styled-button {
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #ff6445;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .styled-button:hover {
+    background-color: #ffa400;
+  }
+  

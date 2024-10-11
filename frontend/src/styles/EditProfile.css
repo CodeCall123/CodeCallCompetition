@@ -1,0 +1,145 @@
+/* EditProfile.css */
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  background-color: #1a1a1a; 
+  min-height: 100vh;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #ffa400;
+  margin-bottom: 30px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.avatar-upload-button {
+  background-color: #ff6445;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.avatar-upload-button:hover {
+  background-color: #ffa400;
+}
+
+.form-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.form-group.full-width {
+  width: 100%; 
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  width: 48%;
+}
+
+.form-group label {
+  color: #ffa400;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #333;
+  color: white;
+}
+
+.form-group textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #333;
+  color: white;
+  width: 100%;
+  box-sizing: border-box; 
+}
+
+.optional {
+  color: #ffa400;
+  font-size: 0.8rem;
+}
+
+.balance-info h3, .balance-info p {
+  color: white; 
+  margin-bottom: 10px;
+}
+
+.balance-info {
+  display: flex;
+  align-items: center;
+}
+
+.usdc-icon {
+  width: 50px; 
+  height: 50px;
+  margin-right: 10px;
+}
+
+.wallet-info {
+  color: #ff6445;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 60px; 
+  margin-bottom: 20px;
+}
+.error {
+  color: #DF1125;
+  font-size: 0.9rem; 
+  margin-top: 5px;   
+}
+
+.copy-icon {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.signup-button {
+  background-color: #ff6445;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.signup-button:hover {
+  background-color: #ffa400;
+}

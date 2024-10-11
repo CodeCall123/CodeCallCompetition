@@ -1,0 +1,132 @@
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 50px auto 0;
+}
+
+.card, .balance-card {
+  background-color: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.username {
+  flex-grow: 1;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.icons {
+  display: flex;
+  gap: 10px;
+}
+
+.icon {
+  color: gray;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.icon:hover {
+  color: white;
+}
+
+.details, .balance-details {
+  color: white;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.detail-item {
+  margin-bottom: 10px;
+}
+
+.balance-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.balance-info img {
+  width: 50px; 
+  height: 50px;
+  margin-right: 10px;
+}
+
+.withdraw-button {
+  background: #ff6b6b;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  width: 100px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.wallet-info {
+  color: #ff6445;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.copy-icon {
+  margin-left: 5px;
+  cursor: pointer;
+}
+.connect-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #ff6b6b, #f06543);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  margin: 0 auto; 
+}
+
+.connect-button:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+.connect-button svg {
+  margin-right: 0.5rem;
+}

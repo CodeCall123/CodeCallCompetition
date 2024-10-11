@@ -1,0 +1,9 @@
+REACT_APP_GITHUB_CLIENT_ID=
+REACT_APP_REDIRECT_URI=https://codecallappfrontend.vercel.app/auth/callback
+REACT_APP_BACKEND_URL=https://codecallbackend.vercel.app
+GITHUB_ORG_NAME=CodeCall123
+GITHUB_ADMIN_TOKEN=
+REACT_APP_MOONPAY_PUBLIC_KEY=
+MONGO_URI=
+REACT_APP_REDIRECT_URI_Local=http://localhost:3000/auth/callback
+REACT_APP_BACKEND_URL_Local=http://localhost:5001

@@ -1,0 +1,46 @@
+/* src/styles/Dashboard.css */
+
+.dashboard {
+    min-height: 100vh;
+  }
+  
+  .container {
+    padding: 20px;
+    text-align: left;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #ff6445, #ffa400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .styled-button {
+    margin-bottom: 20px;
+  }
+  
+  .competitions-section {
+    margin-bottom: 30px;
+  }
+  
+  .competitions-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #ff6445;
+  }
+  
+  .competitions-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .competitions-section li {
+    background-color: #242122;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    margin-bottom: 10px;
+  }
+  

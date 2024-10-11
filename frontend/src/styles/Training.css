@@ -1,0 +1,255 @@
+.training {
+  min-height: 100vh;
+}
+
+.container {
+  padding: 20px;
+  text-align: left;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #ff6445, #ffa400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: #242122;
+  border-radius: 8px;
+  color: white;
+}
+
+.search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 5px;
+  width: 200px;
+}
+
+.search-bar input::placeholder {
+  color: #888;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  background-color: #242122;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #242122;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.dropdown-content label {
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.dropdown-content label input {
+  margin-right: 10px;
+  accent-color: #ff6445;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.trainings-list {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.training-card {
+  display: flex;
+  align-items: center;
+  background-color: #1f1c1c;
+  padding: 20px 25px;
+  border-radius: 30px;
+  color: white;
+  position: relative;
+  border: 2px solid #ff6445;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.training-image img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.training-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.training-tags {
+  display: flex;
+  gap: 10px;
+}
+
+.training-tags span {
+  display: inline-block;
+  background-color: #444;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 15px;
+  font-size: 1rem;
+}
+
+.training-tags .JavaScript { background-color: #008a51; }
+.training-tags .Python { background-color: #4B8BBE; }
+.training-tags .Java { background-color: #f89820; }
+.training-tags .Algorithms { background-color: #8338ec; }
+.training-tags .FrontEnd { background-color: #ffbe0b; }
+.training-tags .BackEnd { background-color: #8ecae6; }
+
+.training-description {
+  font-size: 0.9rem;
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
+.training-status {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.training-status .status {
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: white;
+  font-size: 1rem;
+}
+
+.training-status .blinking-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+  animation: blinking 1s infinite;
+}
+
+.training-status .blinking-dot.live { background-color: green; }
+.training-status .blinking-dot.upcoming { background-color: orange; }
+.training-status .blinking-dot.ended { background-color: grey; animation: none; }
+
+@keyframes blinking {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.training-timer {
+  align-self: center;
+  font-size: 1rem;
+}
+
+.side-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-card {
+  background-color: #242122;
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.styled-button {
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: #ff6445;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.styled-button:hover {
+  background-color: #ffa400;
+}
+
+.view-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-left: auto;
+}
+
+.view-icon-container svg {
+  font-size: 4rem;
+  cursor: pointer;
+  color: #ff6445;
+}
+
+.view-icon-container:hover svg {
+  color: #ffa400;
+}
+
+@media (max-width: 768px) {
+  .training-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .training-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

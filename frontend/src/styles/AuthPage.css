@@ -1,0 +1,69 @@
+/* src/styles/AuthPage.css */
+
+.auth-page {
+    min-height: 100vh;
+  }
+  
+  .container {
+    padding: 20px;
+    text-align: left;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #ff6445, #ffa400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .auth-form input,
+  .auth-form textarea {
+    padding: 10px;
+    background-color: #242122;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+  }
+  
+  .auth-form input::placeholder,
+  .auth-form textarea::placeholder {
+    color: #888;
+  }
+  
+  .styled-button {
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #ff6445;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .styled-button:hover {
+    background-color: #ffa400;
+  }
+  
+  .toggle-link {
+    color: #ff6445;
+    cursor: pointer;
+  }
+  
+  .toggle-link:hover {
+    text-decoration: underline;
+  }
+  
