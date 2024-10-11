@@ -1,0 +1,8 @@
+MONGO_URI=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+PORT=5001
+GITHUB_ORG=CodeCall123
+GITHUB_ADMIN_TOKEN=
+INFURA_MAINNET_URL=https://mainnet.infura.io/v3/apikeyhere
+ZKSYNC_MAINNET_URL=https://zksync-mainnet.infura.io/v3/apikeyhere
