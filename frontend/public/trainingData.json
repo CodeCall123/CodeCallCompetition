@@ -1,0 +1,56 @@
+[
+    {
+      "id": 1,
+      "name": "Javascript: Animated Layouts",
+      "description": "Animations 1",
+      "status": "Live",
+      "reward": 100,
+      "points": 100,
+      "languages": ["JavaScript"],
+      "types": ["Front End"],
+      "endDate": "2024-07-10T12:00:00Z",
+      "image": "../src/assets/images/usdc.png"
+ 
+    },
+    {
+      "id": 2,
+      "name": "Python: Data Science 1",
+      "description": "Pandas 1",
+      "status": "Live",
+      "points": 200,
+      "reward": 200,
+      "languages": ["Python"],
+      "types": ["Algorithms"],
+      "startDate": "2024-07-09T12:00:00Z",
+      "image": "../src/assets/images/usdc.png"
+ 
+    },
+    {
+      "id": 3,
+      "name": "Python: Spot Price Algorithms",
+      "description": "SciPy 1",
+      "status": "Live",
+      "points": 200,
+      "reward": 200,
+      "languages": ["Python"],
+      "types": ["Algorithms"],
+      "endDate": "2024-07-10T12:00:00Z",
+      "image": "../src/assets/images/usdc.png"
+ 
+  
+  
+    },
+    {
+        "id": 4,
+        "name": "Java: API Integration",
+        "description": "Spring Boot 3",
+        "status": "Live",
+        "points": 300,
+        "reward": 300,
+        "languages": ["Java"],
+        "types": ["Back End"],
+        "endDate": "2024-07-10T12:00:00Z",
+        "image": "../src/assets/images/usdc.png"
+      }
+  ]
+  
