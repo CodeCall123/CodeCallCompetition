@@ -372,7 +372,7 @@ const Profile = () => {
             <span>{userData.walletAddress || 'No wallet address'}</span>
             <CopyIcon />
           </WalletInfo>
-          <WithdrawButton onClick={handleWithdrawClick}>Withdraw</WithdrawButton>
+          {/* <WithdrawButton onClick={handleWithdrawClick}>Withdraw</WithdrawButton> */}
           {widgetVisible && (
             <MoonPaySellWidget
               variant="overlay"

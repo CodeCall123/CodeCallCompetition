@@ -57,19 +57,37 @@ const CompetitionDetails = () => {
     const end = new Date(endDate);
     const judgingEnd = new Date(endDate);
     judgingEnd.setDate(end.getDate() + 14); // Add 14 days for judging period
-    
+  
     let statusMessage = '';
     let timeRemaining = '';
   
+    const formatTime = (milliseconds) => {
+      const totalSeconds = Math.floor(milliseconds / 1000);
+      const days = Math.floor(totalSeconds / (3600 * 24));
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+  
+      if (days > 0) {
+        return `${days} days ${hours} hours`;
+      } else if (hours > 0) {
+        return `${hours} hours ${minutes} minutes`;
+      } else if (minutes > 0) {
+        return `${minutes} minutes ${seconds} seconds`;
+      } else {
+        return `${seconds} seconds`;
+      }
+    };
+  
     if (now < start) {
       statusMessage = 'upcoming'; // Time is before startDate
-      timeRemaining = `Starts in ${Math.ceil((start - now) / (1000 * 60 * 60 * 24))} days`;
+      timeRemaining = `Starts in ${formatTime(start - now)}`;
     } else if (now >= start && now < end) {
       statusMessage = 'live'; // Time is between startDate and endDate
-      timeRemaining = `Ends in ${Math.ceil((end - now) / (1000 * 60 * 60 * 24))} days`;
+      timeRemaining = `Ends in ${formatTime(end - now)}`;
     } else if (now >= end && now < judgingEnd) {
       statusMessage = 'judging'; // Time is between endDate and 14 days after
-      timeRemaining = `Judging ends in ${Math.ceil((judgingEnd - now) / (1000 * 60 * 60 * 24))} days`;
+      timeRemaining = `Judging ends in ${formatTime(judgingEnd - now)}`;
     } else {
       statusMessage = 'ended'; // Time is after judgingEnd
       timeRemaining = 'Competition has ended';
@@ -77,6 +95,7 @@ const CompetitionDetails = () => {
   
     return { statusMessage, timeRemaining };
   };
+  
 
   // Countdown Effect: Fix the parameters and ensure proper state updates
   useEffect(() => {
@@ -547,7 +566,7 @@ const CompetitionDetails = () => {
             {activeTab === 'scope' && (
               <div>
                 <h2 style={{ fontFamily: 'Mulish' }}>Scope</h2>
-                <p style={{ fontFamily: 'Mulish' }}>Below is the scope and files you need to work with, mainly the `x` file which requires you to...</p>
+                <p style={{ fontFamily: 'Mulish' }}>Below is the scope and files you need to work with, to view the full scope, make sure to visit the projects' github page</p>
 
                 {renderRepoContents(repoContents)}
               </div>

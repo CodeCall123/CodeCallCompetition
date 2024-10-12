@@ -6,10 +6,11 @@ const cors = require('cors');
 const path = require('path');
 const { ethers } = require('ethers'); 
 const connectToDatabase = require('./db'); 
-
+const helmet = require('helmet'); 
 const { exec } = require('child_process');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
@@ -24,7 +25,18 @@ const usdcContractAddress = '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4';
 const usdcAbi = ["function balanceOf(address owner) view returns (uint256)"];
 
 app.use(bodyParser.json());
-app.use(cors({ origin: 'https://codecallappfrontend.vercel.app' }));
+const allowedOrigins = ['https://codecallappfrontend.vercel.app', 'http://localhost:3000'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+app.use(helmet()); 
 app.use(async (req, res, next) => {
   try {
     await connectToDatabase();
@@ -34,7 +46,17 @@ app.use(async (req, res, next) => {
     res.status(500).json({ message: 'Database connection error' });
   }
 });
-
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],  
+    scriptSrc: ["'self'"],  
+    styleSrc: ["'self'"], 
+    imgSrc: ["'self'", "data:"],  
+    connectSrc: ["'self'", "https://api.github.com"],  
+    objectSrc: ["'none'"],  
+    upgradeInsecureRequests: [] 
+  }
+}));
 
 app.use(competitionRouter);
 app.use(trainingRouter);
@@ -97,7 +119,6 @@ app.post('/authenticate', async (req, res) => {
     const { login, avatar_url, email } = githubResponse.data;
     let user = await User.findOne({ username: login });
     if (!user) {
-      // Generate a new Ethereum wallet
       const wallet = ethers.Wallet.createRandom();
       user = new User({
         username: login,
