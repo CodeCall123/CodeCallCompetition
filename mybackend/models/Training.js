@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
+const encrypt = require('mongoose-encryption');
+require('dotenv').config();
 
 const trainingSchema = new mongoose.Schema({
   name: String,
   description: String,
-  difficulty: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
+  difficulty: {
+    type: String,
+    enum: ['Beginner', 'Intermediate', 'Advanced'],
+    default: 'Beginner',
+  },
   points: Number,
   languages: [String],
   types: [String],
@@ -15,29 +21,42 @@ const trainingSchema = new mongoose.Schema({
   trainingDetails: String,
   howToGuide: String,
   scope: String,
-  starterCode:String,
+  starterCode: String,
   judges: {
     judges: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-      }
-    ]
+        ref: 'User',
+      },
+    ],
   },
   submissions: [
     {
       userId: mongoose.Schema.Types.ObjectId,
       codeLink: String,
-      timestamp: Date
-    }
+      timestamp: { type: Date, default: Date.now },
+    },
   ],
   tests: [
     {
       input: String,
       expectedOutput: String,
-    }
+    },
   ],
-  hints: [String]
+  hints: [String],
+});
+
+const encryptedFields = [
+  'starterCode',
+  'submissions.codeLink',
+  'tests.input',
+  'tests.expectedOutput',
+];
+
+// Add encryption to the schema
+trainingSchema.plugin(encrypt, {
+  secret: process.env.ENCRYPTION_KEY,
+  encryptedFields: encryptedFields,
 });
 
 const Training = mongoose.model('Training', trainingSchema);

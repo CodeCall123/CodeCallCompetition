@@ -4,13 +4,12 @@ const axios = require('axios');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-const { ethers } = require('ethers'); 
-const connectToDatabase = require('./db'); 
-const helmet = require('helmet'); 
+const { ethers } = require('ethers');
+const connectToDatabase = require('./db');
+const helmet = require('helmet');
 const { exec } = require('child_process');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
-
 
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
@@ -21,22 +20,38 @@ const Training = require('./models/Training');
 const app = express();
 const port = process.env.PORT || 5001;
 
-const usdcContractAddress = '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4'; 
-const usdcAbi = ["function balanceOf(address owner) view returns (uint256)"];
+const usdcContractAddress = '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4';
+const usdcAbi = ['function balanceOf(address owner) view returns (uint256)'];
+
+// Enforce HTTPS and Use Secure Cookies
+app.use((req, res, next) => {
+  if (
+    req.headers['x-forwarded-proto'] !== 'https' &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    return res.redirect(['https://', req.get('Host'), req.url].join(''));
+  }
+  next();
+});
 
 app.use(bodyParser.json());
-const allowedOrigins = ['https://codecallappfrontend.vercel.app', 'http://localhost:3000'];
+const allowedOrigins = [
+  'https://codecallappfrontend.vercel.app',
+  'http://localhost:3000',
+];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
-app.use(helmet()); 
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  })
+);
+app.use(helmet());
 app.use(async (req, res, next) => {
   try {
     await connectToDatabase();
@@ -46,40 +61,41 @@ app.use(async (req, res, next) => {
     res.status(500).json({ message: 'Database connection error' });
   }
 });
-app.use(helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'"],  
-    scriptSrc: ["'self'"],  
-    styleSrc: ["'self'"], 
-    imgSrc: ["'self'", "data:"],  
-    connectSrc: ["'self'", "https://api.github.com"],  
-    objectSrc: ["'none'"],  
-    upgradeInsecureRequests: [] 
-  }
-}));
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'", 'https://api.github.com'],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
 
 app.use(competitionRouter);
 app.use(trainingRouter);
 
-
-
-
-
 const ZKSYNC_MAINNET_URL = process.env.ZKSYNC_MAINNET_URL;
 
 if (!ZKSYNC_MAINNET_URL) {
-  console.error("ZKSYNC_MAINNET_URL is not set in the environment variables.");
+  console.error('ZKSYNC_MAINNET_URL is not set in the environment variables.');
   process.exit(1);
 }
 
 const provider = new ethers.providers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
 
-provider.getNetwork().then((network) => {
-  console.log(`Connected to zkSync network: ${network.name}`);
-}).catch((error) => {
-  console.error("Network connection failed:", error);
-  process.exit(1);
-});
+provider
+  .getNetwork()
+  .then((network) => {
+    console.log(`Connected to zkSync network: ${network.name}`);
+  })
+  .catch((error) => {
+    console.error('Network connection failed:', error);
+    process.exit(1);
+  });
 
 // Endpoint to fetch leaderboard data
 app.get('/leaderboard', async (req, res) => {
@@ -99,7 +115,6 @@ app.post('/authenticate', async (req, res) => {
   const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
   try {
-
     const response = await axios.post(
       `https://github.com/login/oauth/access_token`,
       { client_id: clientID, client_secret: clientSecret, code },
@@ -130,18 +145,23 @@ app.post('/authenticate', async (req, res) => {
         Features: 0,
         Bugs: 0,
         Optimisations: 0,
-        walletAddress: wallet.address, 
+        walletAddress: wallet.address,
         discord: '',
         telegram: '',
         twitter: '',
-        linkedin: ''
+        linkedin: '',
       });
       await user.save();
     }
 
-    res.status(200).json({ username: user.username, accessToken: access_token });
+    res
+      .status(200)
+      .json({ username: user.username, accessToken: access_token });
   } catch (error) {
-    console.error('Error during authentication:', error.response ? error.response.data : error.message);
+    console.error(
+      'Error during authentication:',
+      error.response ? error.response.data : error.message
+    );
     res.status(500).json({ message: error.message });
   }
 });
@@ -149,12 +169,19 @@ app.post('/authenticate', async (req, res) => {
 // Function to get USDC balance on zkSync
 const getUSDCBalance = async (walletAddress) => {
   try {
-    const usdcContract = new ethers.Contract(usdcContractAddress, usdcAbi, provider);
+    const usdcContract = new ethers.Contract(
+      usdcContractAddress,
+      usdcAbi,
+      provider
+    );
     const balance = await usdcContract.balanceOf(walletAddress);
-    const formattedBalance = ethers.utils.formatUnits(balance, 6); 
+    const formattedBalance = ethers.utils.formatUnits(balance, 6);
     return formattedBalance;
   } catch (error) {
-    console.error(`Error fetching USDC balance for ${walletAddress} on zkSync:`, error);
+    console.error(
+      `Error fetching USDC balance for ${walletAddress} on zkSync:`,
+      error
+    );
     throw new Error('Could not fetch USDC balance on zkSync.');
   }
 };
@@ -169,10 +196,14 @@ app.get('/user/:username/usdc-balance', async (req, res) => {
     }
 
     const balance = await getUSDCBalance(user.walletAddress);
-    res.status(200).json({ walletAddress: user.walletAddress, usdcBalance: balance });
+    res
+      .status(200)
+      .json({ walletAddress: user.walletAddress, usdcBalance: balance });
   } catch (error) {
     console.error('Error fetching USDC balance:', error.message);
-    res.status(500).json({ message: 'Error fetching USDC balance', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error fetching USDC balance', error: error.message });
   }
 });
 
@@ -187,8 +218,18 @@ const getUserDataByUsername = async (username) => {
 
 // Function to update user data by username
 const updateUserDataByUsername = async (username, data) => {
-  const updateFields = { avatar, email, discord, telegram, twitter, linkedin, bio } = data;
-  const user = await User.findOneAndUpdate({ username }, updateFields, { new: true });
+  const updateFields = ({
+    avatar,
+    email,
+    discord,
+    telegram,
+    twitter,
+    linkedin,
+    bio,
+  } = data);
+  const user = await User.findOneAndUpdate({ username }, updateFields, {
+    new: true,
+  });
   if (!user) {
     throw new Error('User not found');
   }
@@ -214,7 +255,10 @@ app.put('/user/:username', async (req, res) => {
   const updateData = req.body;
   try {
     console.log(`Updating data for user: ${username}`);
-    const updatedUserData = await updateUserDataByUsername(username, updateData);
+    const updatedUserData = await updateUserDataByUsername(
+      username,
+      updateData
+    );
     res.status(200).json(updatedUserData);
   } catch (error) {
     console.error('Error updating user data:', error.message);
@@ -237,7 +281,7 @@ app.post('/execute-python', async (req, res) => {
       console.error(`exec error: ${error}`);
       return res.status(500).json({ error: error.message });
     }
-    
+
     if (stderr) {
       console.error(`stderr: ${stderr}`);
       return res.status(200).json({ output: stderr });
@@ -249,7 +293,7 @@ app.post('/execute-python', async (req, res) => {
 // Endpoint to add a judge to a competition
 app.post('/competitions/:id/addJudge', async (req, res) => {
   const { id } = req.params;
-  const { username, type } = req.body; 
+  const { username, type } = req.body;
 
   try {
     const competition = await Competition.findById(id);
@@ -263,17 +307,25 @@ app.post('/competitions/:id/addJudge', async (req, res) => {
     }
 
     if (type === 'judge') {
-      const isJudge = competition.judges.judges.some(judge => judge.equals(user._id));
-      const isLeadJudge = competition.judges.leadJudge && competition.judges.leadJudge.equals(user._id);
+      const isJudge = competition.judges.judges.some((judge) =>
+        judge.equals(user._id)
+      );
+      const isLeadJudge =
+        competition.judges.leadJudge &&
+        competition.judges.leadJudge.equals(user._id);
 
       if (isJudge || isLeadJudge) {
-        return res.status(400).json({ message: 'User is already a judge or lead judge' });
+        return res
+          .status(400)
+          .json({ message: 'User is already a judge or lead judge' });
       }
 
       competition.judges.judges.push(user._id);
     }
 
-    const allJudges = await User.find({ _id: { $in: competition.judges.judges } }).sort({ xp: -1 });
+    const allJudges = await User.find({
+      _id: { $in: competition.judges.judges },
+    }).sort({ xp: -1 });
 
     if (allJudges.length > 0) {
       competition.judges.leadJudge = allJudges[0]._id;
@@ -289,8 +341,8 @@ app.post('/competitions/:id/addJudge', async (req, res) => {
 });
 // Endpoint to approve a submission
 app.post('/competitions/:id/approveSubmission', async (req, res) => {
-  const { id } = req.params; 
-  const { username, submissionType } = req.body; 
+  const { id } = req.params;
+  const { username, submissionType } = req.body;
 
   try {
     const competition = await Competition.findById(id);
@@ -303,9 +355,12 @@ app.post('/competitions/:id/approveSubmission', async (req, res) => {
     // Determine the payout based on the submission type
     let payout = 0;
     if (submissionType === 'Feature') {
-      payout = (competition.reward * competition.rewardDistribution.feature) / 100;
+      payout =
+        (competition.reward * competition.rewardDistribution.feature) / 100;
     } else if (submissionType === 'Optimization') {
-      payout = (competition.reward * competition.rewardDistribution.optimization) / 100;
+      payout =
+        (competition.reward * competition.rewardDistribution.optimization) /
+        100;
     } else if (submissionType === 'Bug') {
       payout = (competition.reward * competition.rewardDistribution.bugs) / 100;
     }
@@ -315,7 +370,7 @@ app.post('/competitions/:id/approveSubmission', async (req, res) => {
     user.approvedSubmissions.push({
       competitionId: competition._id,
       submissionType,
-      payout
+      payout,
     });
 
     await user.save();
@@ -343,11 +398,17 @@ app.post('/competitions/:id/becomeJudge', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const isJudge = competition.judges.judges.some(judge => judge.equals(user._id));
-    const isLeadJudge = competition.judges.leadJudge && competition.judges.leadJudge.equals(user._id);
+    const isJudge = competition.judges.judges.some((judge) =>
+      judge.equals(user._id)
+    );
+    const isLeadJudge =
+      competition.judges.leadJudge &&
+      competition.judges.leadJudge.equals(user._id);
 
     if (isJudge || isLeadJudge) {
-      return res.status(400).json({ message: 'User is already a judge or lead judge' });
+      return res
+        .status(400)
+        .json({ message: 'User is already a judge or lead judge' });
     }
 
     competition.judges.judges.push(user._id);
@@ -367,8 +428,8 @@ app.post('/competitions/:id/becomeJudge', async (req, res) => {
         {
           headers: {
             Authorization: `token ${githubToken}`,
-            Accept: 'application/vnd.github.v3+json'
-          }
+            Accept: 'application/vnd.github.v3+json',
+          },
         }
       );
       console.log('GitHub response status:', githubResponse.status);
@@ -382,10 +443,17 @@ app.post('/competitions/:id/becomeJudge', async (req, res) => {
         res.status(500).json({ message: 'Failed to add user to GitHub team' });
       }
     } catch (githubError) {
-      console.error('GitHub API error:', githubError.response ? githubError.response.data : githubError.message);
-      res.status(500).json({ message: 'GitHub API error', details: githubError.response ? githubError.response.data : githubError.message });
+      console.error(
+        'GitHub API error:',
+        githubError.response ? githubError.response.data : githubError.message
+      );
+      res.status(500).json({
+        message: 'GitHub API error',
+        details: githubError.response
+          ? githubError.response.data
+          : githubError.message,
+      });
     }
-
   } catch (error) {
     console.error('Error assigning judge role:', error.message);
     res.status(500).json({ message: error.message });
@@ -435,7 +503,6 @@ app.get('/training', async (req, res) => {
   }
 });
 
-
 app.post('/awardXP', async (req, res) => {
   const { username, taskId, trainingId } = req.body;
   try {
@@ -451,13 +518,15 @@ app.post('/awardXP', async (req, res) => {
     );
 
     if (taskCompleted) {
-      return res.status(200).json({ success: false, message: 'Task already completed' });
+      return res
+        .status(200)
+        .json({ success: false, message: 'Task already completed' });
     }
 
     let awardedXP = 0;
     switch (taskId) {
       case 1:
-        awardedXP = Math.round(training.points * 0.05); 
+        awardedXP = Math.round(training.points * 0.05);
         break;
       case 2:
         awardedXP = Math.round(training.points * 0.1);
@@ -471,17 +540,27 @@ app.post('/awardXP', async (req, res) => {
     user.completedTasks.push({ taskId, trainingId });
     await user.save();
 
-    res.status(200).json({ success: true, awardedXP, message: `XP awarded for Task ${taskId}` });
+    res.status(200).json({
+      success: true,
+      awardedXP,
+      message: `XP awarded for Task ${taskId}`,
+    });
   } catch (error) {
     console.error('Error awarding XP:', error.message);
-    res.status(500).json({ success: false, message: 'Error awarding XP', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Error awarding XP',
+      error: error.message,
+    });
   }
 });
 
 // Endpoint to fetch all competitions
 app.get('/competitions', async (req, res) => {
   try {
-    const competitions = await Competition.find().populate('judges.leadJudge judges.judges');
+    const competitions = await Competition.find().populate(
+      'judges.leadJudge judges.judges'
+    );
     console.log('Fetched competitions:', competitions);
     res.status(200).json(competitions);
   } catch (error) {
