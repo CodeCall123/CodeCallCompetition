@@ -5,9 +5,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { ethers } = require('ethers');
-const connectToDatabase = require('./db');
 const helmet = require('helmet');
 const { exec } = require('child_process');
+const axios = require('axios');
+const rateLimit = require('express-rate-limit');
+const { ethers } = require('ethers');
+const connectToDatabase = require('./db');
 const redisClient = require('./redis');
 
 const competitionRouter = require('./routes/competitions');
@@ -16,26 +19,40 @@ const userRouter = require('./routes/user');
 
 const User = require('./models/User');
 
+// Set up rate limiting for login
+const loginRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many login attempts, please try again after a minute.',
+});
+
 const app = express();
 const port = process.env.PORT || 5001;
 
-// Enforce HTTPS and Use Secure Cookies
-app.use((req, res, next) => {
-  if (
-    req.headers['x-forwarded-proto'] !== 'https' &&
-    process.env.NODE_ENV === 'production'
-  ) {
-    return res.redirect(['https://', req.get('Host'), req.url].join(''));
-  }
-  next();
-});
-
-app.use(bodyParser.json());
 const allowedOrigins = [
   'https://codecallappfrontend.vercel.app',
   'http://localhost:3000',
 ];
 
+// ZKSync setup
+const ZKSYNC_MAINNET_URL = process.env.ZKSYNC_MAINNET_URL;
+if (!ZKSYNC_MAINNET_URL) {
+  console.error('ZKSYNC_MAINNET_URL is not set in the environment variables.');
+  process.exit(1);
+}
+
+const provider = new ethers.providers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
+provider
+  .getNetwork()
+  .then((network) => {
+    console.log(`Connected to zkSync network: ${network.name}`);
+  })
+  .catch((error) => {
+    console.error('Network connection failed:', error);
+    process.exit(1);
+  });
+
+app.use(bodyParser.json());
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -47,8 +64,16 @@ app.use(
     },
   })
 );
-
 app.use(helmet());
+app.use((req, res, next) => {
+  if (
+    req.headers['x-forwarded-proto'] !== 'https' &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    return res.redirect(['https://', req.get('Host'), req.url].join(''));
+  }
+  next();
+});
 app.use(async (req, res, next) => {
   try {
     await connectToDatabase();
@@ -58,7 +83,6 @@ app.use(async (req, res, next) => {
     res.status(500).json({ message: 'Database connection error' });
   }
 });
-
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -72,10 +96,77 @@ app.use(
     },
   })
 );
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 app.use('/user', userRouter);
 app.use('/competitions', competitionRouter);
 app.use('/training', trainingRouter);
+
+// GitHub OAuth callback endpoint
+router.post(
+  '/authenticate',
+  loginRateLimiter,
+  body('code').isString().trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { code } = req.body;
+    const clientID = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+    try {
+      const response = await axios.post(
+        `https://github.com/login/oauth/access_token`,
+        { client_id: clientID, client_secret: clientSecret, code },
+        { headers: { accept: 'application/json' } }
+      );
+
+      if (response.data.error) {
+        return res
+          .status(500)
+          .json({ message: response.data.error_description });
+      }
+
+      const { access_token } = response.data;
+      const githubResponse = await axios.get('https://api.github.com/user', {
+        headers: { Authorization: `token ${access_token}` },
+      });
+
+      const { login, avatar_url, email } = githubResponse.data;
+      let user = await User.findOne({ username: login });
+
+      if (!user) {
+        const wallet = ethers.Wallet.createRandom();
+        user = new User({
+          username: login,
+          avatar: avatar_url,
+          email: email,
+          github: login,
+          totalEarnings: 0,
+          xp: 0,
+          Features: 0,
+          Bugs: 0,
+          Optimisations: 0,
+          walletAddress: wallet.address,
+          discord: '',
+          telegram: '',
+          twitter: '',
+          linkedin: '',
+        });
+        await user.save();
+      }
+
+      res
+        .status(200)
+        .json({ username: user.username, accessToken: access_token });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
 
 // Endpoint to fetch leaderboard data
 app.get('/leaderboard', async (req, res) => {
@@ -95,24 +186,6 @@ app.get('/leaderboard', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-// ZKSync setup
-const ZKSYNC_MAINNET_URL = process.env.ZKSYNC_MAINNET_URL;
-if (!ZKSYNC_MAINNET_URL) {
-  console.error('ZKSYNC_MAINNET_URL is not set in the environment variables.');
-  process.exit(1);
-}
-
-const provider = new ethers.providers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
-provider
-  .getNetwork()
-  .then((network) => {
-    console.log(`Connected to zkSync network: ${network.name}`);
-  })
-  .catch((error) => {
-    console.error('Network connection failed:', error);
-    process.exit(1);
-  });
 
 // Endpoint to execute Python code
 app.post('/execute-python', async (req, res) => {
@@ -140,7 +213,6 @@ app.post('/execute-python', async (req, res) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, '../frontend/build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
