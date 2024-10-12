@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const { exec } = require('child_process');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
+const redisClient = require('./redis');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -110,7 +111,16 @@ provider
 // Endpoint to fetch leaderboard data
 app.get('/leaderboard', async (req, res) => {
   try {
+    const cachedLeaderboard = await redisClient.get('leaderboard');
+    if (cachedLeaderboard) {
+      console.log('Serving from Redis cache');
+      return res.status(200).json(JSON.parse(cachedLeaderboard));
+    }
+
     const users = await User.find().sort({ xp: -1 });
+
+    await redisClient.setEx('leaderboard', 60, JSON.stringify(users));
+
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching leaderboard data:', error.message);
@@ -264,8 +274,17 @@ app.get('/user/:username', async (req, res) => {
   const { username } = req.params;
 
   try {
+    const cachedUser = await redisClient.get(`user:${username}`);
+    if (cachedUser) {
+      console.log('Serving user data from Redis cache');
+      return res.status(200).json(JSON.parse(cachedUser));
+    }
+
     console.log(`Fetching data for user: ${username}`);
     const userData = await getUserDataByUsername(username);
+
+    await redisClient.setEx(`user:${username}`, 60, JSON.stringify(userData));
+
     res.status(200).json(userData);
   } catch (error) {
     console.error('Error fetching user data:', error.message);
@@ -297,6 +316,9 @@ app.put(
         username,
         updateData
       );
+
+      await redisClient.del(`user:${username}`);
+
       res.status(200).json(updatedUserData);
     } catch (error) {
       console.error('Error updating user data:', error.message);

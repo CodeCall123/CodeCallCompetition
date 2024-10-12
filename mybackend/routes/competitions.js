@@ -2,18 +2,33 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { body, param, validationResult } = require('express-validator');
+const redisClient = require('../redis');
 
 const checkRole = require('../middleware/checkRole');
 const Competition = require('../models/Competition');
 const User = require('../models/User');
 
+const clearCache = (key) => {
+  redisClient.del(key, (err) => {
+    if (err) console.error('Error clearing cache: ', err);
+  });
+};
+
 //push
 router.get('/competitions', async (req, res) => {
   try {
+    const cachedCompetitions = await redisClient.get(cacheKey);
+    if (cachedCompetitions) {
+      return res.status(200).json(JSON.parse(cachedCompetitions));
+    }
+
     const competitions = await Competition.find(
       {},
       'name description status reward points image languages types startDate endDate'
     );
+
+    redisClient.setex(cacheKey, 3600, JSON.stringify(competitions));
+
     res.status(200).json(competitions);
   } catch (error) {
     console.error('Error fetching competitions:', error.message);
@@ -23,12 +38,20 @@ router.get('/competitions', async (req, res) => {
 
 router.get('/competitions/:id', async (req, res) => {
   try {
+    const cachedCompetition = await redisClient.get(cacheKey);
+    if (cachedCompetition) {
+      return res.status(200).json(JSON.parse(cachedCompetition));
+    }
+
     const competition = await Competition.findById(req.params.id)
       .populate('judges.leadJudge')
       .populate('judges.judges');
     if (!competition) {
       return res.status(404).json({ message: 'Competition not found' });
     }
+
+    redisClient.setex(cacheKey, 3600, JSON.stringify(competition));
+
     res.status(200).json(competition);
   } catch (error) {
     console.error('Error fetching competition details:', error.message);
@@ -79,6 +102,8 @@ router.post(
       // Assign the user as a judge
       competition.judges.judges.push(user._id);
       await competition.save();
+
+      clearCache(`competition_${id}`);
 
       // Add the user to the GitHub team
       const teamSlug = `judge-repo1`;

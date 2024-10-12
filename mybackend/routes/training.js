@@ -1,12 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const Training = require('../models/Training');
+const { body, param, validationResult } = require('express-validator');
+const redisClient = require('../redis');
+
+const clearCache = (key) => {
+  redisClient.del(key, (err) => {
+    if (err) console.error('Error clearing cache: ', err);
+  });
+};
 
 // Endpoint to fetch all training modules
 router.get('/training', async (req, res) => {
   try {
+    const cachedTrainingModules = await redisClient.get(cacheKey);
+    if (cachedTrainingModules) {
+      return res.status(200).json(JSON.parse(cachedTrainingModules));
+    }
+
     const trainingModules = await Training.find();
     console.log('Fetched training modules:', trainingModules);
+
+    redisClient.setex(cacheKey, 3600, JSON.stringify(trainingModules));
+
     res.status(200).json(trainingModules);
   } catch (error) {
     console.error('Error fetching training modules:', error.message);
@@ -17,10 +33,18 @@ router.get('/training', async (req, res) => {
 // Endpoint to fetch a training module by ID
 router.get('/training/:id', async (req, res) => {
   try {
+    const cachedTrainingModule = await redisClient.get(cacheKey);
+    if (cachedTrainingModule) {
+      return res.status(200).json(JSON.parse(cachedTrainingModule));
+    }
+
     const trainingModule = await Training.findById(req.params.id);
     if (!trainingModule) {
       return res.status(404).json({ message: 'Training module not found' });
     }
+
+    redisClient.setex(cacheKey, 3600, JSON.stringify(trainingModule));
+
     res.status(200).json(trainingModule);
   } catch (error) {
     console.error('Error fetching training module:', error.message);
@@ -56,6 +80,8 @@ router.post(
         timestamp: new Date(),
       });
       await trainingModule.save();
+
+      clearCache(`trainingModule_${id}`);
 
       res.status(200).json({ message: 'Submission added successfully' });
     } catch (error) {
