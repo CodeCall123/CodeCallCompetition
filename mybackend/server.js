@@ -262,6 +262,7 @@ const updateUserDataByUsername = async (username, data) => {
 // Endpoint to fetch user data
 app.get('/user/:username', async (req, res) => {
   const { username } = req.params;
+
   try {
     console.log(`Fetching data for user: ${username}`);
     const userData = await getUserDataByUsername(username);
