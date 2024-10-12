@@ -8,6 +8,7 @@ const { ethers } = require('ethers');
 const connectToDatabase = require('./db');
 const helmet = require('helmet');
 const { exec } = require('child_process');
+const { body, validationResult } = require('express-validator');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -109,62 +110,74 @@ app.get('/leaderboard', async (req, res) => {
 });
 
 // GitHub OAuth callback endpoint
-app.post('/authenticate', async (req, res) => {
-  const { code } = req.body;
-  const clientID = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-
-  try {
-    const response = await axios.post(
-      `https://github.com/login/oauth/access_token`,
-      { client_id: clientID, client_secret: clientSecret, code },
-      { headers: { accept: 'application/json' } }
-    );
-
-    if (response.data.error) {
-      console.error('Error from GitHub:', response.data.error_description);
-      return res.status(500).json({ message: response.data.error_description });
+app.post(
+  '/authenticate',
+  // Validate and sanitize the code parameter
+  body('code').isString().trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const { access_token } = response.data;
-    const githubResponse = await axios.get('https://api.github.com/user', {
-      headers: { Authorization: `token ${access_token}` },
-    });
+    const { code } = req.body;
+    const clientID = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
-    const { login, avatar_url, email } = githubResponse.data;
-    let user = await User.findOne({ username: login });
-    if (!user) {
-      const wallet = ethers.Wallet.createRandom();
-      user = new User({
-        username: login,
-        avatar: avatar_url,
-        email: email,
-        github: login,
-        totalEarnings: 0,
-        xp: 0,
-        Features: 0,
-        Bugs: 0,
-        Optimisations: 0,
-        walletAddress: wallet.address,
-        discord: '',
-        telegram: '',
-        twitter: '',
-        linkedin: '',
+    try {
+      const response = await axios.post(
+        `https://github.com/login/oauth/access_token`,
+        { client_id: clientID, client_secret: clientSecret, code },
+        { headers: { accept: 'application/json' } }
+      );
+
+      if (response.data.error) {
+        console.error('Error from GitHub:', response.data.error_description);
+        return res
+          .status(500)
+          .json({ message: response.data.error_description });
+      }
+
+      const { access_token } = response.data;
+      const githubResponse = await axios.get('https://api.github.com/user', {
+        headers: { Authorization: `token ${access_token}` },
       });
-      await user.save();
-    }
 
-    res
-      .status(200)
-      .json({ username: user.username, accessToken: access_token });
-  } catch (error) {
-    console.error(
-      'Error during authentication:',
-      error.response ? error.response.data : error.message
-    );
-    res.status(500).json({ message: error.message });
+      const { login, avatar_url, email } = githubResponse.data;
+      let user = await User.findOne({ username: login });
+      if (!user) {
+        const wallet = ethers.Wallet.createRandom();
+        user = new User({
+          username: login,
+          avatar: avatar_url,
+          email: email,
+          github: login,
+          totalEarnings: 0,
+          xp: 0,
+          Features: 0,
+          Bugs: 0,
+          Optimisations: 0,
+          walletAddress: wallet.address,
+          discord: '',
+          telegram: '',
+          twitter: '',
+          linkedin: '',
+        });
+        await user.save();
+      }
+
+      res
+        .status(200)
+        .json({ username: user.username, accessToken: access_token });
+    } catch (error) {
+      console.error(
+        'Error during authentication:',
+        error.response ? error.response.data : error.message
+      );
+      res.status(500).json({ message: error.message });
+    }
   }
-});
+);
 
 // Function to get USDC balance on zkSync
 const getUSDCBalance = async (walletAddress) => {
@@ -250,21 +263,36 @@ app.get('/user/:username', async (req, res) => {
 });
 
 // Endpoint to update user data
-app.put('/user/:username', async (req, res) => {
-  const { username } = req.params;
-  const updateData = req.body;
-  try {
-    console.log(`Updating data for user: ${username}`);
-    const updatedUserData = await updateUserDataByUsername(
-      username,
-      updateData
-    );
-    res.status(200).json(updatedUserData);
-  } catch (error) {
-    console.error('Error updating user data:', error.message);
-    res.status(500).json({ message: error.message });
+app.put(
+  '/user/:username',
+  // Validate and sanitize inputs
+  body('email').isEmail().normalizeEmail(),
+  body('discord').optional().isString().trim().escape(),
+  body('telegram').optional().isString().trim().escape(),
+  body('twitter').optional().isString().trim().escape(),
+  body('linkedin').optional().isString().trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username } = req.params;
+    const updateData = req.body;
+
+    try {
+      console.log(`Updating data for user: ${username}`);
+      const updatedUserData = await updateUserDataByUsername(
+        username,
+        updateData
+      );
+      res.status(200).json(updatedUserData);
+    } catch (error) {
+      console.error('Error updating user data:', error.message);
+      res.status(500).json({ message: error.message });
+    }
   }
-});
+);
 // Endpoint to execute Python code
 app.post('/execute-python', async (req, res) => {
   const { code } = req.body;
@@ -291,22 +319,150 @@ app.post('/execute-python', async (req, res) => {
   });
 });
 // Endpoint to add a judge to a competition
-app.post('/competitions/:id/addJudge', async (req, res) => {
-  const { id } = req.params;
-  const { username, type } = req.body;
-
-  try {
-    const competition = await Competition.findById(id);
-    if (!competition) {
-      return res.status(404).json({ message: 'Competition not found' });
+app.post(
+  '/competitions/:id/addJudge',
+  // Validate and sanitize inputs
+  body('username').isString().trim().escape(),
+  body('type').isIn(['judge']).trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const { id } = req.params;
+    const { username, type } = req.body;
+
+    try {
+      const competition = await Competition.findById(id);
+      if (!competition) {
+        return res.status(404).json({ message: 'Competition not found' });
+      }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (type === 'judge') {
+        const isJudge = competition.judges.judges.some((judge) =>
+          judge.equals(user._id)
+        );
+        const isLeadJudge =
+          competition.judges.leadJudge &&
+          competition.judges.leadJudge.equals(user._id);
+
+        if (isJudge || isLeadJudge) {
+          return res
+            .status(400)
+            .json({ message: 'User is already a judge or lead judge' });
+        }
+
+        competition.judges.judges.push(user._id);
+      }
+
+      const allJudges = await User.find({
+        _id: { $in: competition.judges.judges },
+      }).sort({ xp: -1 });
+
+      if (allJudges.length > 0) {
+        competition.judges.leadJudge = allJudges[0]._id;
+      }
+
+      await competition.save();
+
+      res.status(200).json(competition);
+    } catch (error) {
+      console.error('Error assigning judge role:', error.message);
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+// Endpoint to approve a submission
+app.post(
+  '/competitions/:id/approveSubmission',
+  // Validate and sanitize inputs
+  body('username').isString().trim().escape(),
+  body('submissionType')
+    .isIn(['Feature', 'Optimization', 'Bug'])
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    if (type === 'judge') {
+    const { id } = req.params;
+    const { username, submissionType } = req.body;
+
+    try {
+      const competition = await Competition.findById(id);
+      const user = await User.findOne({ username });
+
+      if (!competition || !user) {
+        return res
+          .status(404)
+          .json({ message: 'Competition or user not found' });
+      }
+
+      // Determine the payout based on the submission type
+      let payout = 0;
+      if (submissionType === 'Feature') {
+        payout =
+          (competition.reward * competition.rewardDistribution.feature) / 100;
+      } else if (submissionType === 'Optimization') {
+        payout =
+          (competition.reward * competition.rewardDistribution.optimization) /
+          100;
+      } else if (submissionType === 'Bug') {
+        payout =
+          (competition.reward * competition.rewardDistribution.bugs) / 100;
+      }
+
+      // Update the user's total earnings and add the approved submission
+      user.totalEarnings += payout;
+      user.approvedSubmissions.push({
+        competitionId: competition._id,
+        submissionType,
+        payout,
+      });
+
+      await user.save();
+
+      res.status(200).json({ message: 'Submission approved', payout });
+    } catch (error) {
+      console.error('Error approving submission:', error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+// Endpoint to add a judge to a competition
+app.post(
+  '/competitions/:id/becomeJudge',
+  // Validate and sanitize inputs
+  body('username').isString().trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const { username } = req.body;
+
+    try {
+      const competition = await Competition.findById(id);
+      if (!competition) {
+        return res.status(404).json({ message: 'Competition not found' });
+      }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
       const isJudge = competition.judges.judges.some((judge) =>
         judge.equals(user._id)
       );
@@ -321,165 +477,87 @@ app.post('/competitions/:id/addJudge', async (req, res) => {
       }
 
       competition.judges.judges.push(user._id);
-    }
+      await competition.save();
 
-    const allJudges = await User.find({
-      _id: { $in: competition.judges.judges },
-    }).sort({ xp: -1 });
+      const teamSlug = `judge-repo${id}`;
+      const org = process.env.GITHUB_ORG;
+      const githubToken = process.env.GITHUB_ADMIN_TOKEN;
 
-    if (allJudges.length > 0) {
-      competition.judges.leadJudge = allJudges[0]._id;
-    }
+      console.log(`Adding ${username} to team ${teamSlug} in org ${org}`);
+      console.log('Using GitHub Token:', githubToken);
 
-    await competition.save();
+      try {
+        const githubResponse = await axios.put(
+          `https://api.github.com/orgs/${org}/teams/${teamSlug}/memberships/${username}`,
+          {},
+          {
+            headers: {
+              Authorization: `token ${githubToken}`,
+              Accept: 'application/vnd.github.v3+json',
+            },
+          }
+        );
+        console.log('GitHub response status:', githubResponse.status);
+        console.log('GitHub response data:', githubResponse.data);
 
-    res.status(200).json(competition);
-  } catch (error) {
-    console.error('Error assigning judge role:', error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
-// Endpoint to approve a submission
-app.post('/competitions/:id/approveSubmission', async (req, res) => {
-  const { id } = req.params;
-  const { username, submissionType } = req.body;
-
-  try {
-    const competition = await Competition.findById(id);
-    const user = await User.findOne({ username });
-
-    if (!competition || !user) {
-      return res.status(404).json({ message: 'Competition or user not found' });
-    }
-
-    // Determine the payout based on the submission type
-    let payout = 0;
-    if (submissionType === 'Feature') {
-      payout =
-        (competition.reward * competition.rewardDistribution.feature) / 100;
-    } else if (submissionType === 'Optimization') {
-      payout =
-        (competition.reward * competition.rewardDistribution.optimization) /
-        100;
-    } else if (submissionType === 'Bug') {
-      payout = (competition.reward * competition.rewardDistribution.bugs) / 100;
-    }
-
-    // Update the user's total earnings and add the approved submission
-    user.totalEarnings += payout;
-    user.approvedSubmissions.push({
-      competitionId: competition._id,
-      submissionType,
-      payout,
-    });
-
-    await user.save();
-
-    res.status(200).json({ message: 'Submission approved', payout });
-  } catch (error) {
-    console.error('Error approving submission:', error);
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Endpoint to add a judge to a competition
-app.post('/competitions/:id/becomeJudge', async (req, res) => {
-  const { id } = req.params;
-  const { username } = req.body;
-
-  try {
-    const competition = await Competition.findById(id);
-    if (!competition) {
-      return res.status(404).json({ message: 'Competition not found' });
-    }
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const isJudge = competition.judges.judges.some((judge) =>
-      judge.equals(user._id)
-    );
-    const isLeadJudge =
-      competition.judges.leadJudge &&
-      competition.judges.leadJudge.equals(user._id);
-
-    if (isJudge || isLeadJudge) {
-      return res
-        .status(400)
-        .json({ message: 'User is already a judge or lead judge' });
-    }
-
-    competition.judges.judges.push(user._id);
-    await competition.save();
-
-    const teamSlug = `judge-repo${id}`;
-    const org = process.env.GITHUB_ORG;
-    const githubToken = process.env.GITHUB_ADMIN_TOKEN;
-
-    console.log(`Adding ${username} to team ${teamSlug} in org ${org}`);
-    console.log('Using GitHub Token:', githubToken);
-
-    try {
-      const githubResponse = await axios.put(
-        `https://api.github.com/orgs/${org}/teams/${teamSlug}/memberships/${username}`,
-        {},
-        {
-          headers: {
-            Authorization: `token ${githubToken}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
+        if (githubResponse.status === 200 || 201) {
+          console.log(`Successfully added ${username} to ${teamSlug}`);
+          res.status(200).json(competition);
+        } else {
+          console.error(`Failed to add ${username} to ${teamSlug}`);
+          res
+            .status(500)
+            .json({ message: 'Failed to add user to GitHub team' });
         }
-      );
-      console.log('GitHub response status:', githubResponse.status);
-      console.log('GitHub response data:', githubResponse.data);
-
-      if (githubResponse.status === 200 || 201) {
-        console.log(`Successfully added ${username} to ${teamSlug}`);
-        res.status(200).json(competition);
-      } else {
-        console.error(`Failed to add ${username} to ${teamSlug}`);
-        res.status(500).json({ message: 'Failed to add user to GitHub team' });
+      } catch (githubError) {
+        console.error(
+          'GitHub API error:',
+          githubError.response ? githubError.response.data : githubError.message
+        );
+        res.status(500).json({
+          message: 'GitHub API error',
+          details: githubError.response
+            ? githubError.response.data
+            : githubError.message,
+        });
       }
-    } catch (githubError) {
-      console.error(
-        'GitHub API error:',
-        githubError.response ? githubError.response.data : githubError.message
-      );
-      res.status(500).json({
-        message: 'GitHub API error',
-        details: githubError.response
-          ? githubError.response.data
-          : githubError.message,
-      });
+    } catch (error) {
+      console.error('Error assigning judge role:', error.message);
+      res.status(500).json({ message: error.message });
     }
-  } catch (error) {
-    console.error('Error assigning judge role:', error.message);
-    res.status(500).json({ message: error.message });
   }
-});
+);
 
 // Endpoint to change competition status
-app.put('/competitions/:id/changeStatus', async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const competition = await Competition.findById(id);
-    if (!competition) {
-      return res.status(404).json({ message: 'Competition not found' });
+app.put(
+  '/competitions/:id/changeStatus',
+  // Validate and sanitize inputs
+  body('status').isIn(['Live', 'Completed', 'Pending']).trim().escape(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    competition.status = status;
-    await competition.save();
+    const { id } = req.params;
+    const { status } = req.body;
 
-    res.status(200).json(competition);
-  } catch (error) {
-    console.error('Error changing competition status:', error.message);
-    res.status(500).json({ message: error.message });
+    try {
+      const competition = await Competition.findById(id);
+      if (!competition) {
+        return res.status(404).json({ message: 'Competition not found' });
+      }
+
+      competition.status = status;
+      await competition.save();
+
+      res.status(200).json(competition);
+    } catch (error) {
+      console.error('Error changing competition status:', error.message);
+      res.status(500).json({ message: error.message });
+    }
   }
-});
+);
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
@@ -503,57 +581,70 @@ app.get('/training', async (req, res) => {
   }
 });
 
-app.post('/awardXP', async (req, res) => {
-  const { username, taskId, trainingId } = req.body;
-  try {
-    const user = await User.findOne({ username });
-    const training = await Training.findById(trainingId);
-
-    if (!user || !training) {
-      return res.status(404).json({ message: 'User or Training not found' });
+app.post(
+  '/awardXP',
+  // Validate and sanitize inputs
+  body('username').isString().trim().escape(),
+  body('taskId').isInt(),
+  body('trainingId').isMongoId(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const taskCompleted = user.completedTasks.some(
-      (task) => task.taskId === taskId && task.trainingId.equals(trainingId)
-    );
+    const { username, taskId, trainingId } = req.body;
 
-    if (taskCompleted) {
-      return res
-        .status(200)
-        .json({ success: false, message: 'Task already completed' });
+    try {
+      const user = await User.findOne({ username });
+      const training = await Training.findById(trainingId);
+
+      if (!user || !training) {
+        return res.status(404).json({ message: 'User or Training not found' });
+      }
+
+      const taskCompleted = user.completedTasks.some(
+        (task) => task.taskId === taskId && task.trainingId.equals(trainingId)
+      );
+
+      if (taskCompleted) {
+        return res
+          .status(200)
+          .json({ success: false, message: 'Task already completed' });
+      }
+
+      let awardedXP = 0;
+      switch (taskId) {
+        case 1:
+          awardedXP = Math.round(training.points * 0.05);
+          break;
+        case 2:
+          awardedXP = Math.round(training.points * 0.1);
+          break;
+
+        default:
+          return res.status(400).json({ message: 'Invalid task ID' });
+      }
+
+      user.xp += awardedXP;
+      user.completedTasks.push({ taskId, trainingId });
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        awardedXP,
+        message: `XP awarded for Task ${taskId}`,
+      });
+    } catch (error) {
+      console.error('Error awarding XP:', error.message);
+      res.status(500).json({
+        success: false,
+        message: 'Error awarding XP',
+        error: error.message,
+      });
     }
-
-    let awardedXP = 0;
-    switch (taskId) {
-      case 1:
-        awardedXP = Math.round(training.points * 0.05);
-        break;
-      case 2:
-        awardedXP = Math.round(training.points * 0.1);
-        break;
-
-      default:
-        return res.status(400).json({ message: 'Invalid task ID' });
-    }
-
-    user.xp += awardedXP;
-    user.completedTasks.push({ taskId, trainingId });
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      awardedXP,
-      message: `XP awarded for Task ${taskId}`,
-    });
-  } catch (error) {
-    console.error('Error awarding XP:', error.message);
-    res.status(500).json({
-      success: false,
-      message: 'Error awarding XP',
-      error: error.message,
-    });
   }
-});
+);
 
 // Endpoint to fetch all competitions
 app.get('/competitions', async (req, res) => {
