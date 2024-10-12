@@ -27,7 +27,7 @@ router.get('/competitions', async (req, res) => {
       'name description status reward points image languages types startDate endDate'
     );
 
-    redisClient.setex(cacheKey, 3600, JSON.stringify(competitions));
+    redisClient.setEx(cacheKey, 3600, JSON.stringify(competitions));
 
     res.status(200).json(competitions);
   } catch (error) {
@@ -50,7 +50,7 @@ router.get('/competitions/:id', async (req, res) => {
       return res.status(404).json({ message: 'Competition not found' });
     }
 
-    redisClient.setex(cacheKey, 3600, JSON.stringify(competition));
+    redisClient.setEx(cacheKey, 3600, JSON.stringify(competition));
 
     res.status(200).json(competition);
   } catch (error) {

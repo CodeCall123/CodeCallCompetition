@@ -21,7 +21,7 @@ router.get('/training', async (req, res) => {
     const trainingModules = await Training.find();
     console.log('Fetched training modules:', trainingModules);
 
-    redisClient.setex(cacheKey, 3600, JSON.stringify(trainingModules));
+    redisClient.setEx(cacheKey, 3600, JSON.stringify(trainingModules));
 
     res.status(200).json(trainingModules);
   } catch (error) {
@@ -43,7 +43,7 @@ router.get('/training/:id', async (req, res) => {
       return res.status(404).json({ message: 'Training module not found' });
     }
 
-    redisClient.setex(cacheKey, 3600, JSON.stringify(trainingModule));
+    redisClient.setEx(cacheKey, 3600, JSON.stringify(trainingModule));
 
     res.status(200).json(trainingModule);
   } catch (error) {
