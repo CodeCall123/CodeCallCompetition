@@ -36,31 +36,71 @@ The project is structured as follows:
 ```
 
 
-## Installation
 
-To get started with the project:
 
-1. Clone the repository:
+# CodeCall - Local Development Setup
 
-   ```bash
-   git clone https://github.com/your-username/codecall-dashboard.git
-   cd codecall-dashboard
-   ```
+This guide will walk you through the process of setting up and running the CodeCall platform locally for development. Follow each step carefully to ensure the environment is properly configured.
 
-2. Install the dependencies:
+## Prerequisites
 
-   ```bash
-   npm install
-   ```
+Before running the project locally, make sure you have the following installed on your system:
 
-3. Set up environment variables in a `.env` file, as shown above.
+- [Node.js](https://nodejs.org/en/download/) (v14 or above)
+- [MongoDB](https://www.mongodb.com/try/download/community) (for running the local database)
+- [Git](https://git-scm.com/downloads)
 
-4. Start the development server:
+## 1. Clone the Repository
 
-   ```bash
-   npm start
-   ```
+First, clone the repository to your local machine:
 
+```bash
+git clone https://github.com/CodeCall123/codecallcompetition
+cd codecallcompetition
+# For the backend
+cd backend
+npm install
+
+# For the frontend
+cd ../frontend
+npm install
+
+Running server(make sure you are in the backend folder):
+mv .env.local .env
+Ensure you have the following in your env:
+MONGO_URI=mongodb://localhost:27017/codecall_local
+PORT=5001
+REACT_APP_GITHUB_CLIENT_ID=<your_github_client_id>
+GITHUB_CLIENT_ID=<your_github_client_id>
+GITHUB_CLIENT_SECRET=<your_github_client_secret>
+GITHUB_ORG=<your_github_org>
+GITHUB_ADMIN_TOKEN=<your_github_admin_token>
+ZKSYNC_MAINNET_URL=https://zksync-mainnet.infura.io/v3/<your_infura_project_id>
+node server
+
+Running Frontend:
+cd ../frontend
+mv .env.local .env
+Ensure you have the following in your env:
+REACT_APP_GITHUB_CLIENT_ID=<your_github_client_id>
+REACT_APP_REDIRECT_URI=http://localhost:3000/auth/callback
+REACT_APP_BACKEND_URL=http://localhost:5001
+npm start
+
+
+database:
+Make sure MongoDB is running on your local machine. You can do this via the command line or use a GUI tool like MongoDB Compass. For command line users, you can start MongoDB using:
+mongod
+
+
+Optional: Fill thedatabase:
+cd backend
+node seed/seed.js
+
+
+
+
+```
 ## Usage
 
 - **Browse Competitions:** Open the app and view the list of competitions on the main page.
@@ -74,28 +114,8 @@ This app integrates with GitHub to pull data about repositories associated with 
 - **Repository Browsing:** View files and folders in competition repositories.
 - **Pull Requests:** Users can submit their pull requests directly from the app. Pull requests are automatically displayed under their submissions section.
 
-## Running Tests
 
-To run tests, execute the following command:
 
-```bash
-npm test
-```
-
-This will run all tests defined in the `src` folder.
-
-## Deployment
-
-To deploy the project:
-
-1. Ensure that environment variables are correctly set for production.
-2. Build the project for production:
-
-   ```bash
-   npm run build
-   ```
-
-3. Deploy the `build` directory to your preferred hosting provider (e.g., Netlify, Vercel).
 
 ## Contribution Guidelines
 
@@ -107,9 +127,6 @@ If you would like to contribute to the project:
 4. Ensure that tests pass and linting rules are followed.
 5. Submit a pull request to the main repository.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
 
