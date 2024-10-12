@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import '../styles/AddCompetition.css';
-
+//ignore the file for now
 const AddCompetition = () => {
   const [competitionData, setCompetitionData] = useState({
     name: '',
