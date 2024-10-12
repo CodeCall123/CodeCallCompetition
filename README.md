@@ -60,12 +60,14 @@ cd codecallcompetition
 # For the backend
 cd backend
 npm install
-
+```
 # For the frontend
+```bash
 cd ../frontend
 npm install
-
+```
 Running server(make sure you are in the backend folder):
+```bash
 mv .env.local .env
 Ensure you have the following in your env:
 MONGO_URI=mongodb://localhost:27017/codecall_local
@@ -77,8 +79,9 @@ GITHUB_ORG=<your_github_org>
 GITHUB_ADMIN_TOKEN=<your_github_admin_token>
 ZKSYNC_MAINNET_URL=https://zksync-mainnet.infura.io/v3/<your_infura_project_id>
 node server
-
+```
 Running Frontend:
+```bash
 cd ../frontend
 mv .env.local .env
 Ensure you have the following in your env:
@@ -86,21 +89,23 @@ REACT_APP_GITHUB_CLIENT_ID=<your_github_client_id>
 REACT_APP_REDIRECT_URI=http://localhost:3000/auth/callback
 REACT_APP_BACKEND_URL=http://localhost:5001
 npm start
-
+```
 
 database:
 Make sure MongoDB is running on your local machine. You can do this via the command line or use a GUI tool like MongoDB Compass. For command line users, you can start MongoDB using:
+```bash
 mongod
+```
 
-
-Optional: Fill thedatabase:
+Optional: Fill the database:
+```bash
 cd backend
 node seed/seed.js
-
-
-
-
 ```
+
+
+
+
 ## Usage
 
 - **Browse Competitions:** Open the app and view the list of competitions on the main page.
