@@ -9,6 +9,7 @@ const connectToDatabase = require('./db');
 const helmet = require('helmet');
 const { exec } = require('child_process');
 const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -17,6 +18,14 @@ const trainingRouter = require('./routes/training');
 const User = require('./models/User');
 const Competition = require('./models/Competition');
 const Training = require('./models/Training');
+
+const loginRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message:
+    'Too many login attempts from this IP, please try again after a minute',
+  headers: true,
+});
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -112,6 +121,7 @@ app.get('/leaderboard', async (req, res) => {
 // GitHub OAuth callback endpoint
 app.post(
   '/authenticate',
+  loginRateLimiter,
   // Validate and sanitize the code parameter
   body('code').isString().trim().escape(),
   async (req, res) => {
