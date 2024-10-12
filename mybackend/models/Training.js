@@ -46,6 +46,9 @@ const trainingSchema = new mongoose.Schema({
   hints: [String],
 });
 
+trainingSchema.index({ name: 1 });
+trainingSchema.index({ difficulty: 1 });
+
 const encryptedFields = [
   'starterCode',
   'submissions.codeLink',
