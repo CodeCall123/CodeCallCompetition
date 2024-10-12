@@ -13,7 +13,7 @@ const clearCache = (key) => {
 };
 
 // Endpoint to fetch all training modules
-router.get('/training', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const cachedTrainingModules = await redisClient.get(cacheKey);
     if (cachedTrainingModules) {
@@ -33,7 +33,7 @@ router.get('/training', async (req, res) => {
 });
 
 // Endpoint to fetch a training module by ID
-router.get('/training/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const cachedTrainingModule = await redisClient.get(cacheKey);
     if (cachedTrainingModule) {
@@ -56,7 +56,7 @@ router.get('/training/:id', async (req, res) => {
 
 // Endpoint to submit work for a training module
 router.post(
-  '/training/:id/submit',
+  '/:id/submit',
   // Validate and sanitize inputs
   param('id').isMongoId(),
   body('userId').isMongoId(),

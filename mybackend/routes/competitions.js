@@ -17,7 +17,7 @@ const clearCache = (key) => {
 };
 
 //push
-router.get('/competitions', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const cachedCompetitions = await redisClient.get(cacheKey);
     if (cachedCompetitions) {
@@ -38,7 +38,7 @@ router.get('/competitions', async (req, res) => {
   }
 });
 
-router.get('/competitions/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const cachedCompetition = await redisClient.get(cacheKey);
     if (cachedCompetition) {
@@ -63,7 +63,7 @@ router.get('/competitions/:id', async (req, res) => {
 
 // Endpoint to assign judge role to the current user
 router.post(
-  '/competitions/:id/becomeJudge',
+  '/:id/becomeJudge',
   // Validate and sanitize inputs
   param('id').isMongoId(),
   body('username').isString().trim().escape(),

@@ -1,8 +1,8 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+const { ethers } = require('ethers');
 
 const User = require('../models/User');
-const { ethers } = require('ethers');
 
 // Function to get USDC balance on zkSync
 const getUSDCBalance = async (walletAddress) => {
