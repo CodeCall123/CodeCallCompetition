@@ -39,8 +39,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // add indexes
-userSchema.index({ xp: -1 });
-userSchema.index({ username: 1 });
+userSchema.index({ xp: -1, username: 1 });
 
 const encryptionFields = [
   'email',

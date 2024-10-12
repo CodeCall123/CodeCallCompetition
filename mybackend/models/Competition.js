@@ -53,10 +53,12 @@ const competitionSchema = new mongoose.Schema({
 });
 
 // add indexes
-competitionSchema.index({ name: 1 });
-competitionSchema.index({ status: 1 });
-competitionSchema.index({ 'submissions.userId': 1 });
-competitionSchema.index({ 'submissions.submissionType': 1 });
+competitionSchema.index({
+  name: 1,
+  status: 1,
+  'submissions.userId': 1,
+  'submissions.submissionType': 1,
+});
 
 const encryptedFields = ['submissions.codeLink'];
 
