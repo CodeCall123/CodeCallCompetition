@@ -35,6 +35,14 @@ The application is a competitive platform that allows users to participate in co
 - Implement code splitting and lazy loading for React components to improve initial load times.
 - Conduct a thorough audit of dependencies and remove any unused or outdated libraries.
 
+### Functionality:
+- Recognise github labels in commits and PRs and display them next to submissions
+- Recognise github labels in commits and PRs and display and calculate earnings based on the label type: Feature, Bug, Optimisation
+- Currently competition details are updated only when the "addSampleCompetitions" script is called, implement a method to update the competition details (how to, repo etc.) dynamically
+- Clicking the "become a reviewer" button should assign the user with the contributor role on github and allow them to approve or deny PRs from other users (only reviewers may do this)
+- Implement a notifications icon next to the github username on the navbar which notifies the user when their PR was approved or a competition they have commited code to entered a new state (Live, Reviewing, Ended)
+- When a competition has ended, no one should be able to create other PRs for the given repo
+
 ## Focus Areas
 - **Security**: Enhance encryption and data protection mechanisms.
 - **Performance**: Speed up MongoDB operations and overall application load times.
