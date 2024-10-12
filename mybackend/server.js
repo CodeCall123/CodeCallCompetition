@@ -9,9 +9,11 @@ const helmet = require('helmet');
 const { exec } = require('child_process');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
-const { ethers } = require('ethers');
+const { body, validationResult } = require('express-validator');
 const connectToDatabase = require('./db');
 const redisClient = require('./redis');
+
+const router = express.Router();
 
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
