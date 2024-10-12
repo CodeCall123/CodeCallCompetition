@@ -4,6 +4,8 @@ const Training = require('../models/Training');
 const { body, param, validationResult } = require('express-validator');
 const redisClient = require('../redis');
 
+const cacheKey = 'trainingModules';
+
 const clearCache = (key) => {
   redisClient.del(key, (err) => {
     if (err) console.error('Error clearing cache: ', err);

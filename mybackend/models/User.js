@@ -1,7 +1,8 @@
-// User model (User.js)
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
-require('dotenv').config({ path: './.env' });
 
 const userSchema = new mongoose.Schema({
   username: String,

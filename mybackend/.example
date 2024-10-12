@@ -9,3 +9,5 @@ ZKSYNC_MAINNET_URL=https://zksync-mainnet.infura.io/v3/apikeyhere
 ENCRYPTION_KEY=
 REDIS_HOST=
 REDIS_PORT=
+USDC_CONTRACT_ADDRESS=
+USDC_ABI=

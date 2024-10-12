@@ -8,6 +8,8 @@ const checkRole = require('../middleware/checkRole');
 const Competition = require('../models/Competition');
 const User = require('../models/User');
 
+const cacheKey = 'competitionsModules';
+
 const clearCache = (key) => {
   redisClient.del(key, (err) => {
     if (err) console.error('Error clearing cache: ', err);

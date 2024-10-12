@@ -1,6 +1,8 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
-require('dotenv').config();
 
 const trainingSchema = new mongoose.Schema({
   name: String,
