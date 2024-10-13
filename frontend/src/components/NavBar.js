@@ -283,7 +283,7 @@ const NavBar = () => {
           </a>
         </NavLink>
         <NavLink>
-          {!username ? (
+          {username ? (
             <UserMenu>
               <DropdownButton>
                 {username}
