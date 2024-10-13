@@ -212,8 +212,8 @@ const LogoutItem = styled.button`
 
   @media (max-width: 950px) {
 
-    color: white;
-    background-color: black;
+    color: black;
+    background: linear-gradient(45deg, #ff6b6b, #f06543);
     cursor: pointer;
     border-radius: .5rem;
   
