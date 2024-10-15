@@ -11,7 +11,6 @@ const { exec } = require('child_process');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
 const User = require('./models/User');
@@ -72,7 +71,7 @@ if (!ZKSYNC_MAINNET_URL) {
   process.exit(1);
 }
 
-const provider = new ethers.providers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
+const provider = new ethers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
 
 provider.getNetwork().then((network) => {
   console.log(`Connected to zkSync network: ${network.name}`);
