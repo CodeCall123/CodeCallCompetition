@@ -1,6 +1,6 @@
-import axios from "axios";
-import Competition from "../models/Competition";
-import User from "../models/User";
+const axios = require("axios");
+const Competition = require("../models/Competition");
+const User = require("../models/User");
 
 export class CompetitionController {
 

@@ -1,0 +1,113 @@
+const User = require('../models/User');
+const { ethers } = require('ethers');
+
+export class UserController {
+
+    constructor() {
+        this.usdcContractAddress = '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4';
+        this.usdcAbi = ["function balanceOf(address owner) view returns (uint256)"];
+
+        const ZKSYNC_MAINNET_URL = process.env.ZKSYNC_MAINNET_URL;
+
+        if (!ZKSYNC_MAINNET_URL) {
+            console.error("ZKSYNC_MAINNET_URL is not set in the environment variables.");
+            process.exit(1);
+        }
+
+        this.provider = new ethers.JsonRpcProvider(ZKSYNC_MAINNET_URL);
+        this.checkNetworkConnection();
+    }
+
+    checkNetworkConnection() {
+        this.provider.getNetwork()
+            .then((network) => {
+                console.log(`Connected to zkSync network: ${network.name}`);
+            })
+            .catch((error) => {
+                console.error("Network connection failed:", error);
+                process.exit(1);
+            });
+    }
+
+    getUser = async (req, res) => {
+        const { username } = req.params;
+        try {
+            console.log(`Fetching data for user: ${username}`);
+            const userData = await this.getUserDataByUsername(username);
+            res.status(200).json(userData);
+        } catch (error) {
+            console.error('Error fetching user data:', error.message);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    updateUserData = async (req, res) => {
+        const { username } = req.params;
+        const updateData = req.body;
+        try {
+            console.log(`Updating data for user: ${username}`);
+            const updatedUserData = await this.updateUserDataByUsername(username, updateData);
+            res.status(200).json(updatedUserData);
+        } catch (error) {
+            console.error('Error updating user data:', error.message);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    fetchUSDCBalance = async (req, res) => {
+        const { username } = req.params;
+        try {
+            const user = await User.findOne({ username });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            const balance = await this.getUSDCBalance(user.walletAddress);
+            res.status(200).json({ walletAddress: user.walletAddress, usdcBalance: balance });
+        } catch (error) {
+            console.error('Error fetching USDC balance:', error.message);
+            res.status(500).json({ message: 'Error fetching USDC balance', error: error.message });
+        }
+    }
+
+    // we can move it to a separate controller
+    fetchLeaderboard = async (req, res) => {
+        try {
+            const users = await User.find().sort({ xp: -1 });
+            res.status(200).json(users);
+        } catch (error) {
+            console.error('Error fetching leaderboard data:', error.message);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    // private methods
+    updateUserDataByUsername = async (username, data) => {
+        const updateFields = { avatar, email, discord, telegram, twitter, linkedin, bio } = data;
+        const user = await User.findOneAndUpdate({ username }, updateFields, { new: true });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user;
+    }
+
+    getUserDataByUsername = async (username) => {
+        const user = await User.findOne({ username });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user;
+    }
+
+    getUSDCBalance = async (walletAddress) => {
+        try {
+            const usdcContract = new ethers.Contract(this.usdcContractAddress, this.usdcAbi, this.provider);
+            const balance = await usdcContract.balanceOf(walletAddress);
+            const formattedBalance = ethers.utils.formatUnits(balance, 6);
+            return formattedBalance;
+        } catch (error) {
+            console.error(`Error fetching USDC balance for ${walletAddress} on zkSync:`, error);
+            throw new Error('Could not fetch USDC balance on zkSync.');
+        }
+    }
+};

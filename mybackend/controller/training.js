@@ -1,4 +1,4 @@
-import Training from "../models/Training";
+const Training = require("../models/Training");
 
 export class TrainingController {
 
