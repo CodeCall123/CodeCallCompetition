@@ -390,7 +390,7 @@ const Training = () => {
             })}
 
             {searchTerm && sortedAudits?.length === 0 && (
-              <p className="projects-search">No projects found.</p>
+              <p className="projects-search">No trainings found.</p>
             )}
           </div>
           <div className="side-info">
