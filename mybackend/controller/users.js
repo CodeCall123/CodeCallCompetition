@@ -43,13 +43,12 @@ class UserController {
 
     updateUserData = async (req, res) => {
         const { username } = req.params;
-        const updateData = req.body;
-        console.log("updateData", updateData);
 
-        if(req.user.username !== username) {
+        if (req.user.username !== username) {
             return res.status(403).json({ message: 'You are not authorized to update this profile' });
         }
 
+        const updateData = req.body;
 
         try {
             console.log(`Updating data for user: ${username}`);
@@ -62,8 +61,36 @@ class UserController {
         }
     }
 
+    canUpdateThisProfile = async (req, res) => {
+        const {username} = req.params;
+        try {
+
+            const loggedInUser = req.user.username;
+            if(username !== loggedInUser) {
+                return res.status(409).json({
+                    message: "You're not allowed to update this profile"
+                });
+            };
+
+            res.json({
+                message: "OK"
+            })
+
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
     fetchUSDCBalance = async (req, res) => {
         const { username } = req.params;
+
+        if (username !== req.user.username) {
+            return res.status(409).json({
+                message: "You're not allowed to perform this operation"
+            })
+        }
+
         try {
             const user = await User.findOne({ username });
             if (!user) {

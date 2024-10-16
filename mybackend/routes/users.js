@@ -7,9 +7,9 @@ const router = express.Router();
 const userController = new UserController();
 
 router.get('/users/:username', userController.getUser);
-// add authentication here
 router.put('/users/:username', verifyAuth, userController.updateUserData);
-router.get('/user/:username/usdc-balance', userController.fetchUSDCBalance);
+router.get('/users/can-update/:username', verifyAuth, userController.canUpdateThisProfile);
+router.get('/users/:username/usdc-balance', verifyAuth, userController.fetchUSDCBalance);
 // move it later
 router.get('/leaderboard', userController.fetchLeaderboard);
 
