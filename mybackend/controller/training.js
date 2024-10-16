@@ -1,6 +1,6 @@
 const Training = require("../models/Training");
 
-export class TrainingController {
+class TrainingController {
 
     trainingModules = async (req, res) => {
 
@@ -71,3 +71,5 @@ export class TrainingController {
         }
     }
 }
+
+module.exports = TrainingController;

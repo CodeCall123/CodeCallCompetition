@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const Training = require('../models/Training');
 
-export class XPController {
+class XPController {
 
     awardXP = async (req, res) => {
         const { username, taskId, trainingId } = req.body;
@@ -46,3 +46,5 @@ export class XPController {
     }
 
 };
+
+module.exports = XPController;

@@ -1,6 +1,9 @@
+const {ethers} = require('ethers');
+const axios = require('axios');
+
 const User = require('../models/User');
 
-export class AuthController {
+class AuthController {
     authenticate = async (req, res) => {
         const { code } = req.body;
         const clientID = process.env.GITHUB_CLIENT_ID;
@@ -55,3 +58,5 @@ export class AuthController {
     }
 
 };
+
+module.exports = AuthController;

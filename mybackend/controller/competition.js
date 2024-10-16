@@ -2,7 +2,7 @@ const axios = require("axios");
 const Competition = require("../models/Competition");
 const User = require("../models/User");
 
-export class CompetitionController {
+class CompetitionController {
 
     allCompetitions = async (req, res) => {
 
@@ -279,3 +279,5 @@ export class CompetitionController {
         }
     }
 };
+
+module.exports = CompetitionController;

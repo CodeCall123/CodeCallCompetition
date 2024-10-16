@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const { ethers } = require('ethers');
 
-export class UserController {
+class UserController {
 
     constructor() {
         this.usdcContractAddress = '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4';
@@ -44,12 +44,20 @@ export class UserController {
     updateUserData = async (req, res) => {
         const { username } = req.params;
         const updateData = req.body;
+        console.log("updateData", updateData);
+
+        if(req.user.username !== username) {
+            return res.status(403).json({ message: 'You are not authorized to update this profile' });
+        }
+
+
         try {
             console.log(`Updating data for user: ${username}`);
             const updatedUserData = await this.updateUserDataByUsername(username, updateData);
             res.status(200).json(updatedUserData);
         } catch (error) {
             console.error('Error updating user data:', error.message);
+            console.log(error);
             res.status(500).json({ message: error.message });
         }
     }
@@ -83,8 +91,8 @@ export class UserController {
 
     // private methods
     updateUserDataByUsername = async (username, data) => {
-        const updateFields = { avatar, email, discord, telegram, twitter, linkedin, bio } = data;
-        const user = await User.findOneAndUpdate({ username }, updateFields, { new: true });
+        // const updateFields = { avatar, email, discord, telegram, twitter, linkedin, bio } = data;
+        const user = await User.findOneAndUpdate({ username }, data, { new: true });
         if (!user) {
             throw new Error('User not found');
         }
@@ -103,7 +111,7 @@ export class UserController {
         try {
             const usdcContract = new ethers.Contract(this.usdcContractAddress, this.usdcAbi, this.provider);
             const balance = await usdcContract.balanceOf(walletAddress);
-            const formattedBalance = ethers.utils.formatUnits(balance, 6);
+            const formattedBalance = ethers.formatEther(balance, 6);
             return formattedBalance;
         } catch (error) {
             console.error(`Error fetching USDC balance for ${walletAddress} on zkSync:`, error);
@@ -111,3 +119,5 @@ export class UserController {
         }
     }
 };
+
+module.exports = UserController;

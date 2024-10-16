@@ -12,6 +12,7 @@ const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
 const userRouter = require('./routes/users');
 const xpRouter = require('./routes/xp');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -54,6 +55,7 @@ app.use(competitionRouter);
 app.use(trainingRouter);
 app.use(userRouter);
 app.use(xpRouter);
+app.use(authRouter);
 
 // Endpoint to execute Python code
 app.post('/execute-python', async (req, res) => {

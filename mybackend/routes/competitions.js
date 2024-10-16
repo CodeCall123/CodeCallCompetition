@@ -1,6 +1,6 @@
 const express = require('express');
 const checkRole = require('../middleware/checkRole');
-const { CompetitionController } = require('../controller/competition');
+const CompetitionController  = require('../controller/competition');
 
 const router = express.Router();
 

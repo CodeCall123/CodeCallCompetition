@@ -1,5 +1,5 @@
 const express = require('express');
-const { XPController } = require('../controller/xp');
+const XPController = require('../controller/xp');
 
 const router = express.Router();
 const xpController = new XPController();
