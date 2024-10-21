@@ -9,6 +9,7 @@ import '../styles/CompetitionDetails.css';
 import usdcIcon from '../assets/images/usdc.png';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import remarkGfm from 'remark-gfm';
+import {ClipLoader} from "react-spinners";
 
 const CompetitionDetails = () => {
   const { id } = useParams();
@@ -23,10 +24,12 @@ const CompetitionDetails = () => {
   const [expandedPRs, setExpandedPRs] = useState([]);
   const [isJudge, setIsJudge] = useState(false);
   const [isLeadJudge, setIsLeadJudge] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCompetition = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`https://codecallbackend.vercel.app/competitions/${id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -35,6 +38,8 @@ const CompetitionDetails = () => {
         setCompetition(data);
       } catch (error) {
         console.error('Error fetching competition details:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -113,6 +118,7 @@ const CompetitionDetails = () => {
     if (competition && competition.repositoryLink) {
       const fetchRepoContents = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(competition.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/contents`;
           const response = await fetch(apiUrl);
@@ -120,6 +126,8 @@ const CompetitionDetails = () => {
           setRepoContents(data);
         } catch (error) {
           console.error('Error fetching repository contents:', error);
+        }finally {
+          setLoading(false);
         }
       };
 
@@ -131,6 +139,7 @@ const CompetitionDetails = () => {
     if (competition && accessToken) {
       const fetchUserCommits = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(competition.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/commits?author=${username}`;
           const response = await fetch(apiUrl, {
@@ -146,11 +155,14 @@ const CompetitionDetails = () => {
         } catch (error) {
           console.error('Error fetching user commits:', error);
           setUserCommits([]);
+        }finally {
+          setLoading(false);
         }
       };
 
       const fetchUserPRs = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(competition.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/pulls?state=all&creator=${username}`;
           const response = await fetch(apiUrl, {
@@ -168,6 +180,8 @@ const CompetitionDetails = () => {
         } catch (error) {
           console.error('Error fetching user pull requests:', error);
           setUserPRs([]);
+        }finally {
+          setLoading(false);
         }
       };
 
@@ -184,6 +198,7 @@ const CompetitionDetails = () => {
 
   const fetchPrDiff = async (prNumber) => {
     try {
+      setLoading(true);
       const repoUrl = new URL(competition.repositoryLink).pathname.substring(1);
       const apiUrl = `https://api.github.com/repos/${repoUrl}/pulls/${prNumber}`;
       const response = await fetch(apiUrl, {
@@ -202,6 +217,8 @@ const CompetitionDetails = () => {
       }));
     } catch (error) {
       console.error('Error fetching PR diff:', error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -242,6 +259,7 @@ const CompetitionDetails = () => {
     const fetchFolderContents = async () => {
       setIsLoading(true);
       try {
+        setLoading(true);
         const response = await fetch(item.url);
         const data = await response.json();
         setContents(data);
@@ -249,8 +267,18 @@ const CompetitionDetails = () => {
         console.error('Error fetching folder contents:', error);
       } finally {
         setIsLoading(false);
+        setLoading(false);
       }
     };
+    
+    
+    if (loading) {
+      return (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+            <ClipLoader color="#36D7B7" size={50} loading={loading} />
+          </div>
+      );
+    }
 
     return (
       <div>
@@ -303,6 +331,14 @@ const CompetitionDetails = () => {
 
   const renderPRs = () => {
     const userCreatedPRs = userPRs.filter(pr => pr.user.login === username);
+    
+    if (loading) {
+      return (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+            <ClipLoader color="#36D7B7" size={50} loading={loading} />
+          </div>
+      );
+    }
   
     return userCreatedPRs.map(pr => (
       <div key={pr.id} className="pr-container">
@@ -370,6 +406,7 @@ const CompetitionDetails = () => {
 
   const handleAddJudge = async (type) => {
     try {
+      setLoading(true);
       const response = await fetch(`https://codecallbackend.vercel.app/competitions/${id}/addJudge`, {
         method: 'POST',
         headers: {
@@ -392,11 +429,14 @@ const CompetitionDetails = () => {
     } catch (error) {
       console.error('Error adding judge:', error);
       alert(error.message);
+    }finally {
+      setLoading(false);
     }
   };
 
   const handleBecomeJudge = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`https://codecallbackend.vercel.app/competitions/${id}/becomeJudge`, {
         method: 'POST',
         headers: {
@@ -419,9 +459,18 @@ const CompetitionDetails = () => {
     } catch (error) {
       console.error('Error becoming a judge:', error);
       alert(error.message);
+    }finally {
+      setLoading(false);
     }
   };
   
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+        </div>
+    );
+  }
   
   const renderRewardDistribution = () => {
     if (!competition) return null;

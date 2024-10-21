@@ -4,6 +4,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { UserContext } from '../contexts/UserContext';
 import '../styles/Home.css';
+import { ClipLoader } from 'react-spinners';
 
 const Training = () => {
   const [audits, setAudits] = useState([]);
@@ -15,10 +16,12 @@ const Training = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const { username, handleLogin } = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAudits = async () => {
       try {
+        setLoading(true);
         const response = await fetch('https://codecallbackend.vercel.app/training');
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -27,6 +30,8 @@ const Training = () => {
         setAudits(data);
       } catch (error) {
         console.error('Error fetching competitions:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -144,6 +149,14 @@ const Training = () => {
 
     return { feature, optimization, judging, bugs };
   };
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+        </div>
+    );
+  }
 
   return (
     <div className="home">

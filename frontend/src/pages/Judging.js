@@ -5,6 +5,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import usdcIcon from '../assets/images/usdc.png';
 import { UserContext } from '../contexts/UserContext';
 import '../styles/Home.css';
+import {ClipLoader} from "react-spinners";
 
 const Judging = () => {
   const [audits, setAudits] = useState([]);
@@ -15,10 +16,12 @@ const Judging = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const { username, handleLogin } = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAudits = async () => {
       try {
+        setLoading(true);
         const response = await fetch('https://codecallbackend.vercel.app/competitions');
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -27,6 +30,8 @@ const Judging = () => {
         setAudits(data);
       } catch (error) {
         console.error('Error fetching competitions:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -135,6 +140,14 @@ const Judging = () => {
 
     return { feature, optimization, judging, bugs };
   };
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+        </div>
+    );
+  }
 
   return (
     <div className="home">

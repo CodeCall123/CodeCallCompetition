@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom'; 
 import axios from 'axios';
+import { ClipLoader } from 'react-spinners';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -99,18 +100,23 @@ const SearchInput = styled.input`
     color: #888;
   }
 `;
+
 const Leaderboard = () => {
   const [data, setData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/leaderboard`);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching leaderboard data', error);
+      }finally {
+        setLoading(false); 
       }
     };
 
@@ -145,90 +151,103 @@ const Leaderboard = () => {
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+        </div>
+    );
+  }
+
   return (
-    <PageWrapper>
-      <LeaderboardWrapper>
-        <SearchBar>
-          <SearchInput
-            type="text"
-            placeholder="Search by name..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </SearchBar>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell
-                onClick={() => sortData('rank')}
-                sortDirection={sortConfig.key === 'rank' ? sortConfig.direction : null}
-              >
-                Rank
-              </TableHeaderCell>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell
-                onClick={() => sortData('totalEarnings')}
-                sortDirection={sortConfig.key === 'totalEarnings' ? sortConfig.direction : null}
-              >
-                Earnings
-              </TableHeaderCell>
-              <TableHeaderCell
-                onClick={() => sortData('xp')}
-                sortDirection={sortConfig.key === 'xp' ? sortConfig.direction : null}
-              >
-                XP
-              </TableHeaderCell>
-              <TableHeaderCell
-                onClick={() => sortData('Features')}
-                sortDirection={sortConfig.key === 'Features' ? sortConfig.direction : null}
-              >
-                Features
-              </TableHeaderCell>
-              <TableHeaderCell
-                onClick={() => sortData('Bugs')}
-                sortDirection={sortConfig.key === 'Bugs' ? sortConfig.direction : null}
-              >
-                Bugs
-              </TableHeaderCell>
-              <TableHeaderCell
-                onClick={() => sortData('Optimisations')}
-                sortDirection={sortConfig.key === 'Optimisations' ? sortConfig.direction : null}
-              >
-                Optimisations
-              </TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <tbody>
-            {filteredData.map((user, index) => (
-              <TableRow key={user._id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>
-                    <ProfileImage src={user.avatar || 'https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611746.jpg'} alt="profile" />
-                    </Link>
-                    <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>
-                      {user.username}
-                    </Link>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <EarningsWrapper>
-                    {user.totalEarnings}
-                    <EarningsLogo src={usdcLogoUrl} alt="USDC logo" />
-                  </EarningsWrapper>
-                </TableCell>
-                <TableCell>{user.xp}</TableCell>
-                <TableCell>{user.Features}</TableCell>
-                <TableCell>{user.Bugs}</TableCell>
-                <TableCell>{user.Optimisations}</TableCell>
-              </TableRow>
-            ))}
-          </tbody>
-        </Table>
-      </LeaderboardWrapper>
-    </PageWrapper>
+      <PageWrapper>
+            <LeaderboardWrapper>
+              <SearchBar>
+                <SearchInput
+                    type="text"
+                    placeholder="Search by name..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                />
+              </SearchBar>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderCell
+                        onClick={() => sortData('rank')}
+                        sortDirection={sortConfig.key === 'rank' ? sortConfig.direction : null}
+                    >
+                      Rank
+                    </TableHeaderCell>
+                    <TableHeaderCell>Name</TableHeaderCell>
+                    <TableHeaderCell
+                        onClick={() => sortData('totalEarnings')}
+                        sortDirection={sortConfig.key === 'totalEarnings' ? sortConfig.direction : null}
+                    >
+                      Earnings
+                    </TableHeaderCell>
+                    <TableHeaderCell
+                        onClick={() => sortData('xp')}
+                        sortDirection={sortConfig.key === 'xp' ? sortConfig.direction : null}
+                    >
+                      XP
+                    </TableHeaderCell>
+                    <TableHeaderCell
+                        onClick={() => sortData('Features')}
+                        sortDirection={sortConfig.key === 'Features' ? sortConfig.direction : null}
+                    >
+                      Features
+                    </TableHeaderCell>
+                    <TableHeaderCell
+                        onClick={() => sortData('Bugs')}
+                        sortDirection={sortConfig.key === 'Bugs' ? sortConfig.direction : null}
+                    >
+                      Bugs
+                    </TableHeaderCell>
+                    <TableHeaderCell
+                        onClick={() => sortData('Optimisations')}
+                        sortDirection={sortConfig.key === 'Optimisations' ? sortConfig.direction : null}
+                    >
+                      Optimisations
+                    </TableHeaderCell>
+                  </TableRow>
+                </TableHeader>
+                <tbody>
+                {filteredData.map((user, index) => (
+                    <TableRow key={user._id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>
+                            <ProfileImage
+                                src={user.avatar || 'https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611746.jpg'}
+                                alt="profile"
+                            />
+                          </Link>
+                          <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>
+                            {user.username}
+                          </Link>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <EarningsWrapper>
+                          {user.totalEarnings}
+                          <EarningsLogo src={usdcLogoUrl} alt="USDC logo" />
+                        </EarningsWrapper>
+                      </TableCell>
+                      <TableCell>{user.xp}</TableCell>
+                      <TableCell>{user.Features}</TableCell>
+                      <TableCell>{user.Bugs}</TableCell>
+                      <TableCell>{user.Optimisations}</TableCell>
+                    </TableRow>
+                ))}
+                </tbody>
+              </Table>
+            </LeaderboardWrapper>
+      </PageWrapper>
   );
 };
 
 export default Leaderboard;
+
+

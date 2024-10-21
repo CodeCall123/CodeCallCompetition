@@ -6,6 +6,7 @@ import axios from 'axios';
 import { MoonPaySellWidget } from '@moonpay/moonpay-react';
 import { UserContext } from '../contexts/UserContext';
 import usdcIcon from '../assets/images/usdc.png';
+import {ClipLoader} from "react-spinners";
 
 const Container = styled.div`
   display: flex;
@@ -265,24 +266,31 @@ const Profile = () => {
   const { username: loggedInUsername } = useContext(UserContext);
   const navigate = useNavigate();
   const [widgetVisible, setWidgetVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/leaderboard`);
         const sortedUsers = response.data.sort((a, b) => b.xp - a.xp); 
         setUsers(sortedUsers);
       } catch (error) {
         console.error('Error fetching leaderboard', error);
+      }finally {
+        setLoading(false);
       }
     };
 
     const fetchUserData = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/user/${username}`);
         setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -291,10 +299,13 @@ const Profile = () => {
   }, [username]);
   const fetchUsdcBalance = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/user/${username}/usdc-balance`);
       setUsdcBalance(response.data.usdcBalance);
     } catch (error) {
       console.error('Error fetching USDC balance', error);
+    }finally {
+      setLoading(false);
     }
   };
     fetchUsdcBalance();
@@ -320,6 +331,14 @@ const Profile = () => {
 
   if (!userData) {
     return <div>Loading...</div>;
+  }
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+        </div>
+    );
   }
 
   return (

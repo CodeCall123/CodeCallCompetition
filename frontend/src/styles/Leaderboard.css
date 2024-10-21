@@ -18,4 +18,10 @@
 
 .search-bar input::placeholder {
   color: #888;
+
+  @keyframes bounce {
+    to {
+      transform: translateY(-15px);
+    }
+  }
 }
