@@ -1,12 +1,12 @@
 // Import necessary modules and setup
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const connectToDatabase = require('./db'); 
 const helmet = require('helmet'); 
 const { exec } = require('child_process');
 
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
@@ -17,18 +17,37 @@ const authRouter = require('./routes/auth');
 const app = express();
 const port = process.env.PORT || 5001;
 
-app.use(express.json());
-const allowedOrigins = ['https://codecallappfrontend.vercel.app', 'http://localhost:3000'];
+// const allowedOrigins = ['https://codecallappfrontend.vercel.app', 'http://localhost:3000'];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     console.log("origin", origin);
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   }
+// }));
+
+const allowedOrigins = process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',') : [];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 app.use(helmet()); 
 app.use(async (req, res, next) => {
   try {
