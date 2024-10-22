@@ -42,6 +42,8 @@ The application is a competitive platform that allows users to participate in co
 - Clicking the "become a reviewer" button should assign the user with the contributor role on github and allow them to approve or deny PRs from other users (only reviewers may do this)
 - Implement a notifications icon next to the github username on the navbar which notifies the user when their PR was approved or a competition they have commited code to entered a new state (Live, Reviewing, Ended)
 - When a competition has ended, no one should be able to create other PRs for the given repo
+- Add serverside access api access to be able to modify the readme file for the task list in case we want to add bold letters or update a task
+
 
 ## Focus Areas
 - **Security**: Enhance encryption and data protection mechanisms.
