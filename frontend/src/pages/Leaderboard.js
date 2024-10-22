@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom'; 
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
+import {Typewriter} from "react-simple-typewriter";
 
 const PageWrapper = styled.div`
   display: flex;
@@ -153,8 +154,20 @@ const Leaderboard = () => {
 
   if (loading) {
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          {/* Your existing loader */}
           <ClipLoader color="#36D7B7" size={50} loading={loading} />
+
+          {/* Typewriter effect */}
+          <div style={{ marginTop: '20px', color: '#36D7B7', fontFamily: 'Courier New', fontSize: '20px' }}>
+            <Typewriter
+                words={['Loading your data...', 'Fetching PRs...', 'Please wait...']}
+                loop={true}
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1500}
+            />
+          </div>
         </div>
     );
   }
