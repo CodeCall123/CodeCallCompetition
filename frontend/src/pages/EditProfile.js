@@ -95,7 +95,8 @@ const EditProfile = () => {
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/users/${username}`, updateData, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('github_token')}`
-        }
+        },
+        withCredentials: true
       });
       navigate(`/profile/${username}`);
     } catch (error) {

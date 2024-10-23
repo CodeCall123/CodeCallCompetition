@@ -1,49 +1,21 @@
 // Import necessary modules and setup
+const { Config } = require('./config/config');
 const path = require('path');
-// require('dotenv').config({ path: path.join(__dirname, '.env') });
-
 const express = require('express');
 const cors = require('cors');
 const connectToDatabase = require('./db'); 
 const helmet = require('helmet'); 
 const { exec } = require('child_process');
-
-
 const competitionRouter = require('./routes/competitions');
 const trainingRouter = require('./routes/training');
 const userRouter = require('./routes/users');
 const xpRouter = require('./routes/xp');
 const authRouter = require('./routes/auth');
-const { Config } = require('./config/config');
 
 const app = express();
 const port = process.env.PORT || 5001;
 
-const allowedOrigins = Config.CLIENT_URLS ? Config.CLIENT_URLS.split(',') : '*';
-
-console.log("allowed origins", allowedOrigins);
-app.use(express.json());
-app.use(cors({
-  origin: (origin, callback) => {
-    console.log("origin", origin);
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
-
-app.use(helmet()); 
-app.use(async (req, res, next) => {
-  try {
-    await connectToDatabase();
-    next();
-  } catch (err) {
-    console.error('Database connection error:', err);
-    res.status(500).json({ message: 'Database connection error' });
-  }
-});
+app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],  
@@ -56,16 +28,37 @@ app.use(helmet.contentSecurityPolicy({
   }
 }));
 
+console.log("client", Config.CLIENT_URL);
+
+app.use(cors({
+  origin: Config.CLIENT_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+// For preflight (remove later)
+app.options('*', cors());
+
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res.status(500).json({ message: 'Database connection error' });
+  }
+});
+
 app.use(competitionRouter);
 app.use(trainingRouter);
 app.use(userRouter);
 app.use(xpRouter);
 app.use(authRouter);
 
-// Endpoint to execute Python code
 app.post('/execute-python', async (req, res) => {
   const { code } = req.body;
-
   const fs = require('fs');
   const tmpFile = 'temp_code.py';
 
