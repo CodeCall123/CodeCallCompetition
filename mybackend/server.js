@@ -19,12 +19,10 @@ const { Config } = require('./config/config');
 const app = express();
 const port = process.env.PORT || 5001;
 
-// const allowedOrigins = ['https://codecallappfrontend.vercel.app', 'http://localhost:3000'];
-
-// const allowedOrigins = `${process.env.CLIENTS_URLS ? process.env.CLIENTS_URLS.split(',') : []}`;
-
 const allowedOrigins = Config.CLIENT_URLS ? Config.CLIENT_URLS.split(',') : '*';
 
+console.log("allowed origins", allowedOrigins);
+app.use(express.json());
 app.use(cors({
   origin: (origin, callback) => {
     console.log("origin", origin);
@@ -35,7 +33,6 @@ app.use(cors({
     }
   }
 }));
-app.use(express.json());
 
 app.use(helmet()); 
 app.use(async (req, res, next) => {
