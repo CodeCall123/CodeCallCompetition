@@ -2,9 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaGithub, FaCaretDown } from 'react-icons/fa';
+import { FaGithub, FaCaretDown, FaBell } from 'react-icons/fa';
 import logo from '../assets/images/betalogo.png';
 import { UserContext } from '../contexts/UserContext';
+import Notifications from "./Notifications";
 
 const Navbar = styled.nav`
   display: flex;
@@ -150,10 +151,60 @@ const LogoutItem = styled.button`
   }
 `;
 
+const NotificationIcon = styled.div`
+  position: relative;
+  margin-left: 1rem;
+  cursor: pointer;
+  color: white;
+`;
+
+const NotificationCount = styled.span`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+`;
+
+const NotificationDropdown = styled.div`
+  display: none;
+  position: absolute;
+  background-color: #1f1c1c;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  right: 0;
+  top: 100%;
+  border-radius: 5px;
+  padding: 0.5rem 0;
+  
+  ${NotificationIcon}:hover & {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const NotificationItem = styled.div`
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    background-color: #575757;
+  }
+`;
+
+
+
+
 const NavBar = () => {
   const { username, handleLogin, handleLogout } = useContext(UserContext);
   const navigate = useNavigate();
-
+  const [notifications, setNotifications] = useState([]);
+  
   return (
     <Navbar>
       <Logo to="/">
@@ -189,6 +240,21 @@ const NavBar = () => {
                 <DropdownItem to={`/edit-profile/${username}`}>Edit Profile</DropdownItem>
                 <LogoutItem onClick={handleLogout}>Logout</LogoutItem>
               </DropdownContent>
+              <NotificationIcon>
+                <FaBell />
+                {notifications.length > 0 && <NotificationCount>{notifications.length}</NotificationCount>}
+                <NotificationDropdown>
+                  {notifications.length > 0 ? (
+                      notifications.map((notification, idx) => (
+                          <NotificationItem key={idx}>
+                            {notification.message}
+                          </NotificationItem>
+                      ))
+                  ) : (
+                      <NotificationItem>No notifications</NotificationItem>
+                  )}
+                </NotificationDropdown>
+              </NotificationIcon>
             </UserMenu>
           ) : (
             <LoginButton onClick={handleLogin}>
@@ -198,6 +264,7 @@ const NavBar = () => {
           )}
         </NavLink>
       </NavLinks>
+      <Notifications setNotifications={setNotifications} />
     </Navbar>
   );
 };
