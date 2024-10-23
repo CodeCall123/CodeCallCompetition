@@ -30,22 +30,14 @@ const port = process.env.PORT || 5001;
 //   }
 // }));
 
-const allowedOrigins = process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',') : [];
+// const allowedOrigins = `${process.env.CLIENTS_URLS ? process.env.CLIENTS_URLS.split(',') : []}`;
+const allowedOrigin = `${process.env.CLIENT_URLS}`;
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
+
+app.use(cors({
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+}));
 
 app.use(express.json());
 app.use(helmet()); 
