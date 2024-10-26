@@ -290,45 +290,77 @@ const CompetitionDetails = () => {
       </svg> {item.name}
     </div>
   );
-    
-  
+
+
   const renderCommits = () => {
     return userCommits.map(commit => (
-      <div key={commit.sha}>
-        <p>{commit.commit.message}</p>
-        <p>{commit.commit.author.name} - {new Date(commit.commit.author.date).toLocaleString()}</p>
-      </div>
+        <div key={commit.sha} className="commit-container">
+          <p>{commit.commit.message}</p>
+          <p>{commit.commit.author.name} - {new Date(commit.commit.author.date).toLocaleString()}</p>
+          
+          {commit.labels && (
+              <div className="commit-labels">
+                {commit.labels.map(label => (
+                    <span
+                        key={label.id}
+                        className="commit-label"
+                        style={{
+                          backgroundColor: `#${label.color}`,
+                          color: '#fff',
+                          padding: '2px 4px',
+                          borderRadius: '3px',
+                          marginRight: '5px',
+                        }}
+                    >
+              {label.name}
+            </span>
+                ))}
+              </div>
+          )}
+        </div>
     ));
   };
 
+
   const renderPRs = () => {
-    const userCreatedPRs = userPRs.filter(pr => pr.user.login === username);
-  
-    return userCreatedPRs.map(pr => (
-      <div key={pr.id} className="pr-container">
-        <button onClick={() => togglePR(pr.number)}>
-          <span>{pr.title}</span>
-          <div className="pr-labels">
-            {pr.labels.map(label => (
-              <span
-                key={label.id}
-                className="pr-label"
-                style={{ backgroundColor: `#${label.color}`, color: '#fff', padding: '2px 4px', borderRadius: '3px', marginRight: '5px' }}
-              >
-                {label.name}
-              </span>
-            ))}
-          </div>
-          <ChevronRightIcon className="chevron-icon" />
-        </button>
-        {expandedPRs.includes(pr.number) && prDiffs[pr.number] && (
-          <Diff viewType="split" diffType="unified" hunks={parseDiff(prDiffs[pr.number], { nearbySequences: 'zip' })[0].hunks}>
-            {(hunks) => hunks.map(hunk => (
-              <Hunk key={hunk.content} hunk={hunk} />
-            ))}
-          </Diff>
-        )}
-      </div>
+    return userPRs.map(pr => (
+        <div key={pr.id} className="pr-container">
+          <button onClick={() => togglePR(pr.number)} className="pr-button">
+            <div className="pr-header">
+              <span className="pr-title">{pr.title}</span>
+              <span className={`pr-status pr-status-${pr.state}`}>{pr.state}</span>
+            </div>
+
+            {/* PR Labels */}
+            <div className="pr-labels">
+              {pr.labels.map(label => (
+                  <span
+                      key={label.id}
+                      className="pr-label"
+                      style={{
+                        backgroundColor: `#${label.color}`,
+                        color: '#fff',
+                        padding: '2px 4px',
+                        borderRadius: '3px',
+                        marginRight: '5px',
+                      }}
+                  >
+              {label.name}
+            </span>
+              ))}
+            </div>
+
+            <ChevronRightIcon className="chevron-icon" />
+          </button>
+
+          {expandedPRs.includes(pr.number) && prDiffs[pr.number] && (
+              <Diff viewType="split" diffType="unified" hunks={parseDiff(prDiffs[pr.number], { nearbySequences: 'zip' })[0].hunks}>
+                {(hunks) => hunks.map(hunk => (
+                    <Hunk key={hunk.content} hunk={hunk} />
+                ))}
+              </Diff>
+          )}
+        </div>
     ));
   };
 
@@ -588,6 +620,7 @@ const CompetitionDetails = () => {
                   Go to Repository
                 </a>
                 {renderPRs()}
+                {renderCommits()}
               </div>
             )}
           </div>
