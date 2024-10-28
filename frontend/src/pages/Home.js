@@ -6,6 +6,7 @@ import usdcIcon from '../assets/images/usdc.png';
 import { UserContext } from '../contexts/UserContext';
 import '../styles/Home.css';
 import SkeletonProjectCard from '../components/SkeletonProjectCard';
+import NoProjectFoundCard from '../components/NoProjectFoundCard';
 
 const Home = () => {
   const [audits, setAudits] = useState([]);
@@ -302,7 +303,7 @@ const Home = () => {
         </div>
         <div className="content">
           <div className="audits-list">
-            {!isLoading && sortedAudits.length === 0 && <h3 className="not-found-projects-text">No projects found</h3>}
+            {!isLoading && sortedAudits.length === 0 && <NoProjectFoundCard />}
             {isLoading && <SkeletonProjectCard/>}
             {sortedAudits.map((audit) => {
               const rewards = calculateRewards(audit.reward);
