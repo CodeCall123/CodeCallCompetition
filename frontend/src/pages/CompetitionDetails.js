@@ -307,25 +307,42 @@ const CompetitionDetails = () => {
     return userCreatedPRs.map(pr => (
       <div key={pr.id} className="pr-container">
         <button onClick={() => togglePR(pr.number)}>
+          {/* PR Title */}
           <span>{pr.title}</span>
+  
+          {/* Labels Section */}
           <div className="pr-labels">
             {pr.labels.map(label => (
               <span
                 key={label.id}
                 className="pr-label"
-                style={{ backgroundColor: `#${label.color}`, color: '#fff', padding: '2px 4px', borderRadius: '3px', marginRight: '5px' }}
+                style={{
+                  backgroundColor: `#${label.color}`,
+                  color: '#fff',
+                  padding: '2px 4px',
+                  borderRadius: '3px',
+                  marginRight: '5px',
+                }}
               >
                 {label.name}
               </span>
             ))}
           </div>
+  
+          {/* Icon */}
           <ChevronRightIcon className="chevron-icon" />
         </button>
+  
+        {/* Expanded PR Diff Section */}
         {expandedPRs.includes(pr.number) && prDiffs[pr.number] && (
-          <Diff viewType="split" diffType="unified" hunks={parseDiff(prDiffs[pr.number], { nearbySequences: 'zip' })[0].hunks}>
-            {(hunks) => hunks.map(hunk => (
-              <Hunk key={hunk.content} hunk={hunk} />
-            ))}
+          <Diff
+            viewType="split"
+            diffType="unified"
+            hunks={parseDiff(prDiffs[pr.number], { nearbySequences: 'zip' })[0].hunks}
+          >
+            {(hunks) =>
+              hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk} />)
+            }
           </Diff>
         )}
       </div>
