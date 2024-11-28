@@ -6,6 +6,7 @@ import usdcIcon from '../assets/images/usdc.png';
 import { UserContext } from '../contexts/UserContext';
 import '../styles/Home.css';
 
+//test comment
 const Judging = () => {
   const [audits, setAudits] = useState([]);
   const [programmingLanguages, setProgrammingLanguages] = useState([]);
