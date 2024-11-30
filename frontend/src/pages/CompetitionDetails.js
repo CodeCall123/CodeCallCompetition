@@ -24,6 +24,7 @@ const CompetitionDetails = () => {
   const [isJudge, setIsJudge] = useState(false);
   const [isLeadJudge, setIsLeadJudge] = useState(false);
 
+  //notifs test 3
   useEffect(() => {
     const fetchCompetition = async () => {
       try {
