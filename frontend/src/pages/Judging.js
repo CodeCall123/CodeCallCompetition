@@ -5,6 +5,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import usdcIcon from '../assets/images/usdc.png';
 import { UserContext } from '../contexts/UserContext';
 import '../styles/Home.css';
+import {ClipLoader} from "react-spinners";
+import { Typewriter } from 'react-simple-typewriter';
 
 //test comment update
 const Judging = () => {
@@ -16,10 +18,12 @@ const Judging = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const { username, handleLogin } = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAudits = async () => {
       try {
+        setLoading(true);
         const response = await fetch('https://codecallbackend.vercel.app/competitions');
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -28,6 +32,8 @@ const Judging = () => {
         setAudits(data);
       } catch (error) {
         console.error('Error fetching competitions:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -136,6 +142,26 @@ const Judging = () => {
 
     return { feature, optimization, judging, bugs };
   };
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          {/* Your existing loader */}
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+
+          {/* Typewriter effect */}
+          <div style={{ marginTop: '20px', color: '#36D7B7', fontFamily: 'Courier New', fontSize: '20px' }}>
+            <Typewriter
+                words={['Loading your data...', 'Fetching PRs...', 'Please wait...']}
+                loop={true}
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1500}
+            />
+          </div>
+        </div>
+    );
+  }
 
   return (
     <div className="home">
