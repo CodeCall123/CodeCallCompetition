@@ -26,6 +26,7 @@ const Judging = () => {
         }
         const data = await response.json();
         setAudits(data);
+        console.log(data, "skdhkshdkf")
       } catch (error) {
         console.error('Error fetching competitions:', error);
       }
@@ -108,6 +109,7 @@ const Judging = () => {
     }
 
     const sortedAudits = [...audits];
+
 
     if (sortCriteria.includes('largest prize pool')) {
       sortedAudits.sort((a, b) => b.reward - a.reward);
@@ -259,6 +261,7 @@ const Judging = () => {
         </div>
         <div className="content">
           <div className="audits-list">
+
             {sortedAudits.map((audit) => {
               const rewards = calculateRewards(audit.reward);
               const status = getRemainingTime(audit.status.toLowerCase(), audit.endDate, audit.startDate).toLowerCase();
@@ -313,6 +316,9 @@ const Judging = () => {
                 </div>
               );
             })}
+            {
+              searchTerm && sortedAudits?.length === 0 && <p className='projects-search'>No competitions found.</p>
+            }
           </div>
           <div className="side-info">
             <div className="info-card">
