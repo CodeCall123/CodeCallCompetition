@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/EditProfile.css';
 import axios from 'axios';
+import {ClipLoader} from "react-spinners";
+import {FaL} from "react-icons/fa6";
+import {Typewriter} from "react-simple-typewriter";
 
 const EditProfile = () => {
   const { username } = useParams();
@@ -13,12 +16,14 @@ const EditProfile = () => {
   const [twitter, setTwitter] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [errors, setErrors] = useState({});
-  const [bio, setBio] = useState('');  
+  const [bio, setBio] = useState('');
+  const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/user/${username}`);
         const data = response.data;
         setAvatar(data.avatar);
@@ -31,6 +36,8 @@ const EditProfile = () => {
 
       } catch (error) {
         console.error('Error fetching user data', error);
+      }finally {
+        setLoading(false);
       }
     };
   
@@ -45,6 +52,7 @@ const handleAvatarChange = async (e) => {
     formData.append('username', username); 
 
     try {
+      setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload-avatar`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -54,6 +62,8 @@ const handleAvatarChange = async (e) => {
       setAvatar(response.data.avatarUrl);
     } catch (error) {
       console.error('Error uploading avatar', error);
+    }finally {
+      setLoading(false);
     }
   }
 };
@@ -76,6 +86,7 @@ const handleAvatarChange = async (e) => {
       return;
     }
     try {
+      setLoading(true);
       const updateData = {
         avatar,
         email,
@@ -91,9 +102,32 @@ const handleAvatarChange = async (e) => {
       navigate(`/profile/${username}`);
     } catch (error) {
       console.error('Error updating user data', error);
+    }finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          {/* Your existing loader */}
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+
+          {/* Typewriter effect */}
+          <div style={{ marginTop: '20px', color: '#36D7B7', fontFamily: 'Courier New', fontSize: '20px' }}>
+            <Typewriter
+                words={['Loading your data...', 'Fetching PRs...', 'Please wait...']}
+                loop={true}
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1500}
+            />
+          </div>
+        </div>
+    );
+  }
+  
+  
   return (
     <div className="profile-container">
       <h1 className="title">Edit Profile</h1>

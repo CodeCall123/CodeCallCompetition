@@ -13,7 +13,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python'; 
-import 'codemirror/theme/dracula.css'; 
+import 'codemirror/theme/dracula.css';
+import { ClipLoader } from 'react-spinners';
+import {Typewriter} from "react-simple-typewriter";
 
 const HowToGuide = ({ content }) => {
   return (
@@ -51,10 +53,12 @@ const TrainingDetails = () => {
   const [hintsVisible, setHintsVisible] = useState([]);
   const [code, setCode] = useState('# Write your code here\n'); 
   const [output, setOutput] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTraining = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`https://codecallbackend.vercel.app/training/${id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -65,6 +69,8 @@ const TrainingDetails = () => {
         setCode(data.starterCode);
       } catch (error) {
         console.error('Error fetching training details:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -75,6 +81,7 @@ const TrainingDetails = () => {
     if (training && training.repositoryLink) {
       const fetchRepoContents = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(training.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/contents`;
           const response = await fetch(apiUrl);
@@ -82,6 +89,8 @@ const TrainingDetails = () => {
           setRepoContents(data);
         } catch (error) {
           console.error('Error fetching repository contents:', error);
+        }finally {
+          setLoading(false);
         }
       };
 
@@ -93,6 +102,7 @@ const TrainingDetails = () => {
     if (training && accessToken) {
       const fetchUserCommits = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(training.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/commits?author=${username}`;
           const response = await fetch(apiUrl, {
@@ -108,11 +118,14 @@ const TrainingDetails = () => {
         } catch (error) {
           console.error('Error fetching user commits:', error);
           setUserCommits([]);
+        }finally {
+          setLoading(false);
         }
       };
 
       const fetchUserPRs = async () => {
         try {
+          setLoading(true);
           const repoUrl = new URL(training.repositoryLink).pathname.substring(1);
           const apiUrl = `https://api.github.com/repos/${repoUrl}/pulls?state=all&creator=${username}`;
           const response = await fetch(apiUrl, {
@@ -130,6 +143,8 @@ const TrainingDetails = () => {
         } catch (error) {
           console.error('Error fetching user pull requests:', error);
           setUserPRs([]);
+        }finally {
+          setLoading(false);
         }
       };
 
@@ -146,6 +161,7 @@ const TrainingDetails = () => {
 
   const fetchPrDiff = async (prNumber) => {
     try {
+      setLoading(true);
       const repoUrl = new URL(training.repositoryLink).pathname.substring(1);
       const apiUrl = `https://api.github.com/repos/${repoUrl}/pulls/${prNumber}`;
       const response = await fetch(apiUrl, {
@@ -164,6 +180,8 @@ const TrainingDetails = () => {
       }));
     } catch (error) {
       console.error('Error fetching PR diff:', error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -204,11 +222,14 @@ const TrainingDetails = () => {
       if (isExpanded && contents.length === 0) {
         const fetchFolderContents = async () => {
           try {
+            setLoading(true);
             const response = await fetch(item.url);
             const data = await response.json();
             setContents(data);
           } catch (error) {
             console.error('Error fetching folder contents:', error);
+          }finally {
+            setLoading(false);
           }
         };
 
@@ -264,6 +285,7 @@ const TrainingDetails = () => {
   const runCode = () => {
     const executePythonCode = async (code) => {
       try {
+        setLoading(true);
         const response = await fetch('https://codecallbackend.vercel.app/execute-python', {
           method: 'POST',
           headers: {
@@ -282,6 +304,8 @@ const TrainingDetails = () => {
         checkResults(data.output);
       } catch (error) {
         setOutput(String(error));
+      }finally {
+        setLoading(false);
       }
     };
   
@@ -303,6 +327,7 @@ const TrainingDetails = () => {
   const awardXP = async (taskNumber) => {
     console.log(`Awarding XP for Task ${taskNumber}`); 
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:5001/awardXP', {
         method: 'POST',
         headers: {
@@ -326,6 +351,8 @@ const TrainingDetails = () => {
       }
     } catch (error) {
       console.error('Error awarding XP:', error.message);
+    }finally {
+      setLoading(false);
     }
   };
   
@@ -388,6 +415,26 @@ const TrainingDetails = () => {
 
   if (!training) {
     return <div></div>;
+  }
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          {/* Your existing loader */}
+          <ClipLoader color="#36D7B7" size={50} loading={loading} />
+
+          {/* Typewriter effect */}
+          <div style={{ marginTop: '20px', color: '#36D7B7', fontFamily: 'Courier New', fontSize: '20px' }}>
+            <Typewriter
+                words={['Loading your data...', 'Fetching PRs...', 'Please wait...']}
+                loop={true}
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1500}
+            />
+          </div>
+        </div>
+    );
   }
 
   return (
